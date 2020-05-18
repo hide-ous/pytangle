@@ -185,7 +185,6 @@ class API:
             orderBy="desc",
             sortBy="total_interactions",
     ):
-
         """
         Args:
         accountIds : ( None ) A list of CrowdTangle accountIds to retrieve leaderboard data for. These should be provided comma-separated. This and listId are mutually exclusive; if both are sent, accountIds will be preferred.
@@ -219,6 +218,7 @@ class API:
             token=self._token,
         )
         return lists(params)
+
     def links(
             self,
             count=100,
