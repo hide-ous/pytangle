@@ -19,10 +19,16 @@ if __name__ == '__main__':
     logger.info(my_lists)
     a_list = my_lists[-1]
 
-    param_dict = dict(token=token_)
-    param_dict['listIds'] = [a_list['id']]
-    param_dict['sortBy'] = 'date'
-    param_dict['count'] = 100
+    # param_dict = dict(token=token_)
+    # param_dict['listIds'] = [a_list['id']]
+    # param_dict['sortBy'] = 'date'
+    # param_dict['count'] = 100
+    #
+    # for post in islice(posts(**param_dict), 300):
+    #     logger.info(post)
 
-    for post in islice(posts(**param_dict), 300):
-        logger.info(post)
+    param_dict = dict(token=token_)
+    param_dict['listId'] = a_list['id']
+    param_dict['count'] = 100
+    for account in islice(accounts_in_list(**param_dict), 300):
+        logger.info(account)

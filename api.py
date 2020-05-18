@@ -23,6 +23,6 @@ def search(**args):
     return iterate_request(args, 'https://api.crowdtangle.com/search', 'leaderboard', make_request_1_every_10s)
 
 
-def list_id_or_account(**args):
+def accounts_in_list(**args):
     list_id = args.pop('listId')
-    return iterate_request(args, 'https://api.crowdtangle.com/lists/:{}/accounts'.format(list_id), 'accounts', make_request_1_every_10s)
+    return iterate_request(args, 'https://api.crowdtangle.com/lists/{}/accounts'.format(list_id), 'accounts', make_request_1_every_10s)
