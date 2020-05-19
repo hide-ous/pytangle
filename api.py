@@ -1,4 +1,5 @@
 from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
+from utils import remove_null_values_from_dict
 
 
 def lists(**args):
@@ -101,7 +102,7 @@ class API:
             weightView=weightView,
             weightWow=weightWow,
         )
-        yield from posts(params)
+        yield from posts(**remove_null_values_from_dict(params))
 
     def search(
             self,
@@ -172,7 +173,7 @@ class API:
             verifiedOnly=verifiedOnly,
             language=language,
         )
-        yield from search(params)
+        yield from search(**remove_null_values_from_dict(params))
 
     def leaderboard(
             self,
@@ -207,7 +208,7 @@ class API:
             orderBy=orderBy,
             sortBy=sortBy,
         )
-        yield from leaderboard(params)
+        yield from leaderboard(**remove_null_values_from_dict(params))
 
     def lists(
             self,
@@ -217,7 +218,7 @@ class API:
         params = dict(
             token=self._token,
         )
-        return lists(params)
+        return lists(**remove_null_values_from_dict(params))
 
     def links(
             self,
@@ -253,7 +254,7 @@ class API:
             includeSummary=includeSummary,
             platforms=platforms,
         )
-        yield from links(params)
+        yield from links(**remove_null_values_from_dict(params))
 
     def accounts_in_list(
             self,
@@ -273,4 +274,4 @@ class API:
             offset=offset,
             listId=listId,
         )
-        yield from accounts_in_list(params)
+        yield from accounts_in_list(**remove_null_values_from_dict(params))

@@ -39,8 +39,8 @@ def make_request(uri, params, max_retries=5):
         except requests.exceptions.HTTPError as errh:
             logger.error("Http Error:", errh)
             if errh.response.status_code == 429:
-                raise RateLimitException() #should be handled by ratelimit
-            elif errh.response.status_code / 100 == 4: #4XX error
+                raise RateLimitException()  # should be handled by ratelimit
+            elif errh.response.status_code / 100 == 4:  # 4XX error
                 raise errh
             elif errh.response.status_code / 100 == 5:  # 5XX error
                 # TODO: add config for how long to wait
