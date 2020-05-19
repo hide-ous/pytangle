@@ -72,7 +72,7 @@ class API:
         weightComment : ( 0-10 )
         weightHaha : ( 0-10 )
         weightLike : ( 0-10 )
-         weightLove : ( 0-10 )
+        weightLove : ( 0-10 )
         weightSad : ( 0-10 )
         weightShare : ( 0-10 )
         weightView : ( 0-10 )

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     with open('config.json') as f:
         config = json.load(f)
     token_ = config['token']
-    my_lists = lists({"token" : token_})
+    my_lists = lists(**{"token" : token_})
     logger.info(my_lists)
     a_list = my_lists[-1]
 

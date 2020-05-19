@@ -1,7 +1,7 @@
 import time
 import json
 import requests
-from ratelimit import limits, sleep_and_retry
+from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
 
@@ -34,15 +34,35 @@ def make_request(uri, params, max_retries=5):
         try:
             response = requests.get(uri, params=params)
             logger.debug(response)
-            # TODO: handle errors meaningfully
-            assert response.status_code == 200
+            response.raise_for_status()
             return json.loads(response.content.decode('utf-8'))
-        except Exception as e:
-            logger.debug(e)
-            last_exception = e
-            # TODO: add config for how long to wait
+        except requests.exceptions.HTTPError as errh:
+            logger.error("Http Error:", errh)
+            if errh.response.status_code == 429:
+                raise RateLimitException() #should be handled by ratelimit
+            elif errh.response.status_code / 100 == 4: #4XX error
+                raise errh
+            elif errh.response.status_code / 100 == 5:  # 5XX error
+                # TODO: add config for how long to wait
+                time.sleep(60)
+            else:
+                time.sleep(1)
+            last_exception = errh
+            current_tries += 1
+        except requests.exceptions.ConnectionError as errc:
+            logger.error("Error Connecting:", errc, "\nsleeping")
+            last_exception = errc
             time.sleep(1)
             current_tries += 1
+        except requests.exceptions.Timeout as errt:
+            logger.error("Timeout Error:", errt, "\nsleeping")
+            last_exception = errt
+            time.sleep(1)
+            current_tries += 1
+        except requests.exceptions.RequestException as err:
+            logger.error("Unspecified RequestException", err)
+            raise err
+    # if all retries fail, raise the last exception
     raise last_exception
 
 
