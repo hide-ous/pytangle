@@ -52,12 +52,12 @@ def make_request(uri, params, max_retries=5):
         except requests.exceptions.ConnectionError as errc:
             logger.error("Error Connecting:", errc, "\nsleeping")
             last_exception = errc
-            time.sleep(1)
+            time.sleep(60)
             current_tries += 1
         except requests.exceptions.Timeout as errt:
             logger.error("Timeout Error:", errt, "\nsleeping")
             last_exception = errt
-            time.sleep(1)
+            time.sleep(60)
             current_tries += 1
         except requests.exceptions.RequestException as err:
             logger.error("Unspecified RequestException", err)
