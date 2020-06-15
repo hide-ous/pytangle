@@ -11,6 +11,7 @@ logging.basicConfig(stream=sys.stdout,
                     datefmt='%Y-%m-%d %H:%M:%S'
                     )
 logger = logging.getLogger('CT')
+
 if __name__ == '__main__':
     with open('config.json') as f:
         config = json.load(f)
