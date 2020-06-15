@@ -5,11 +5,13 @@ from lib2to3.fixer_base import ConditionalFix
 
 from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
 from utils import remove_null_values_from_dict
-
+import logging
 CONFIG_FILE_LOCATIONS = [ os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),
                           os.path.join(os.path.expanduser('~'), "config.json"),
                           os.path.join(os.path.abspath('~'), "config.json"),
                           ]
+logger = logging.getLogger()
+
 def lists(**args):
     response = make_request('https://api.crowdtangle.com/lists', args)
     return response['result']['lists']
@@ -320,6 +322,7 @@ class API:
             self,
     ):
         """
+        Retrieve the lists, saved searches and saved post lists of the dashboard associated with the token sent in.
         """
         params = dict(
             token=self._token,

@@ -5,8 +5,7 @@ from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
 
-# TODO: add config for logger name
-logger = logging.getLogger('CT')
+logger = logging.getLogger()
 
 ONE_SECOND = 1
 ONE_MINUTE = 60
