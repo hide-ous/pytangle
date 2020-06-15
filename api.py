@@ -1,7 +1,15 @@
+import json
+import os
+import sys
+from lib2to3.fixer_base import ConditionalFix
+
 from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
 from utils import remove_null_values_from_dict
 
-
+CONFIG_FILE_LOCATIONS = [ os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),
+                          os.path.join(os.path.expanduser('~'), "config.json"),
+                          os.path.join(os.path.abspath('~'), "config.json"),
+                          ]
 def lists(**args):
     response = make_request('https://api.crowdtangle.com/lists', args)
     return response['result']['lists']
@@ -42,7 +50,17 @@ def post_id(endpoint, **args):
 
 
 class API:
-    def __init__(self, token):
+
+    def __init__(self, token=None):
+        if token == None:
+            #try to get the token from the configuration files
+            for config_file_location in CONFIG_FILE_LOCATIONS:
+                if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
+                    token = json.load(config_file_location)['token']
+
+        if token == None:
+            raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: "+ \
+                             str(CONFIG_FILE_LOCATIONS))
         self._token = token
 
     def posts(
