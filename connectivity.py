@@ -67,10 +67,10 @@ def make_request(uri, params, max_retries=5):
 
 def iterate_request(param_dict, endpoint, response_field, request_fun):
     count = -1
-    if "batch_size" in param_dict:
+    if "batchSize" in param_dict:
         if "count" in param_dict:
             count = param_dict.pop('count')
-        param_dict['count'] = param_dict.pop('batch_size')
+        param_dict['count'] = param_dict.pop('batchSize')
     elif "count" in param_dict:
         count = param_dict['count']
 

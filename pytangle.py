@@ -36,15 +36,19 @@ if __name__ == '__main__':
     param_dict = dict(token=token_)
     param_dict['listIds'] = [a_list['id']]
     param_dict['sortBy'] = 'date'
-    param_dict['count'] = 100
+    param_dict['count'] = -1
+    param_dict['batchSize'] = 100
 
     param_dict['startDate'] = '2020-06-01'
     param_dict['endDate'] = '2020-06-15'
 
-    posts_list = list()
-    for post in posts(**param_dict):
-        posts_list.append([post])
-        # logger.info(post)
-        # break
-        if len(posts_list) % 1000 == 0:
-            print(len(posts_list))
+    counter=0
+    with open("C:\\users\\samoryma\\downloads\\usnpl.njson", 'w+') as f:
+        for post in posts(**param_dict):
+            # posts_list.append([post])
+            f.write(json.dumps(post)+'\n')
+            counter+=1
+            # logger.info(post)
+            # break
+            if counter % 1000 == 0:
+                print(counter)
