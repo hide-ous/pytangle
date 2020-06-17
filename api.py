@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-from lib2to3.fixer_base import ConditionalFix
 
 from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
 from utils import remove_null_values_from_dict
@@ -30,7 +29,7 @@ def leaderboard(**args):
 
 
 def search(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/search', 'leaderboard', make_request_1_every_10s)
+    return iterate_request(args, 'https://api.crowdtangle.com/search', 'search', make_request_1_every_10s)
 
 
 def accounts_in_list(**args):
@@ -173,7 +172,8 @@ class API:
                     required for Reddit, ignored for Facebook and Instagram (where a post ID contain the account's ID).
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
        """
-        params = dict(
+        params = dict(id=id,
+                    account=account,
         )
         yield from post_id(endpoint, **remove_null_values_from_dict(params))
 
@@ -266,6 +266,7 @@ class API:
             notinTitle=notinTitle,
             offset=offset,
             platforms=platforms,
+            searchField=searchField,
             searchTerm=searchTerm,
             sortBy=sortBy,
             timeframe=timeframe,
