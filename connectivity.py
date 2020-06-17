@@ -66,6 +66,7 @@ def make_request(uri, params, max_retries=5):
 
 
 def iterate_request(param_dict, endpoint, response_field, request_fun):
+    #FIXME: poor design, hiding parameters in data
     count = -1
     if "batchSize" in param_dict:
         if "count" in param_dict:
