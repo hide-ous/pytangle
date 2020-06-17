@@ -66,11 +66,25 @@ def make_request(uri, params, max_retries=5):
 
 
 def iterate_request(param_dict, endpoint, response_field, request_fun):
+    count = -1
+    if "batch_size" in param_dict:
+        if "count" in param_dict:
+            count = param_dict.pop('count')
+        param_dict['count'] = param_dict.pop('batch_size')
+    elif "count" in param_dict:
+        count = param_dict['count']
+
     next_page = endpoint
+    n_yielded = 0
     while next_page:
         response = request_fun(next_page, param_dict)
         next_page = None
-        yield from response['result'][response_field]
-        if 'pagination' in response['result'] and "nextPage" in response["result"]['pagination']:
+        for result in response['result'][response_field]:
+            if (count == -1) or (n_yielded < count):
+                yield result
+                n_yielded += 1
+        if ('pagination' in response['result']) and\
+                ("nextPage" in response["result"]['pagination']) and\
+                ((count == -1) or (n_yielded < count)):
             next_page = response['result']['pagination']['nextPage']
             param_dict = dict()

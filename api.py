@@ -5,13 +5,15 @@ import sys
 from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
 from utils import remove_null_values_from_dict
 import logging
-CONFIG_FILE_LOCATIONS = [ os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),
-                          os.path.join(os.path.expanduser('~'), "config.json"),
-                          os.path.join(os.path.abspath('~'), "config.json"),
-                          ]
+
+CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),
+                         os.path.join(os.path.expanduser('~'), "config.json"),
+                         os.path.join(os.path.abspath('~'), "config.json"),
+                         ]
 logger = logging.getLogger()
 
-def lists(**args):
+
+def lists(**args):#FIXME could need iteration as well
     response = make_request('https://api.crowdtangle.com/lists', args)
     return response['result']['lists']
 
@@ -54,13 +56,13 @@ class API:
 
     def __init__(self, token=None):
         if token == None:
-            #try to get the token from the configuration files
+            # try to get the token from the configuration files
             for config_file_location in CONFIG_FILE_LOCATIONS:
                 if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
                     token = json.load(config_file_location)['token']
 
         if token == None:
-            raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: "+ \
+            raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: " + \
                              str(CONFIG_FILE_LOCATIONS))
         self._token = token
 
@@ -71,6 +73,7 @@ class API:
             endDate=None,
             sortBy="overperforming",
             count=10,
+            batchSize=100,
             language=None,
             minInteractions=0,
             offset=0,
@@ -99,7 +102,9 @@ class API:
         sortBy : ( date, interaction_rate, overperforming, total_interactions, underperforming, default overperforming )
                     The method by which to filter and order posts. If you do not set this parameter, it will default to
                      sorting by overperforming.
-        count : ( 1-100, default 10 ) The number of posts to return. Between 1-100.
+        count : ( positive int or -1, default 10 ) The number of posts to return. -1 means to return all available.
+                    If requesting more than 100 posts, batchSize must be set.
+        batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         language : ( None, i.e. all languages ) Exceptions: Some languages require more than two characters: Chinese
                     (Simplified) is zh-CN and Chinese (Traditional) is zh-TW.
         minInteractions : ( None, default 0 ) If set, will exclude posts with total interactions below this threshold.
@@ -139,6 +144,7 @@ class API:
             endDate=endDate,
             sortBy=sortBy,
             count=count,
+            batchSize=batchSize,
             language=language,
             minInteractions=minInteractions,
             offset=offset,
@@ -173,8 +179,8 @@ class API:
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
        """
         params = dict(id=id,
-                    account=account,
-        )
+                      account=account,
+                      )
         yield from post_id(endpoint, **remove_null_values_from_dict(params))
 
     def search(
@@ -182,6 +188,7 @@ class API:
             and_=None,
             not_=None,
             count=10,
+            batchSize=100,
             startDate=None,
             endDate=None,
             inAccountIds=None,
@@ -207,7 +214,9 @@ class API:
                     steph curry' and your and term is 'GOAT,' the posts must match ('lebron james' AND 'GOAT') OR
                     ('steph curry' AND 'GOAT')
         not_ : ( None ) A corollary to and_, not_ will exclude all posts matching this word.
-        count : ( 1-100, default 10 ) The number of posts to return. Between 1-100.
+        count : ( positive int or -1, default 10 ) The number of posts to return. -1 means to return all available.
+                    If requesting more than 100 posts, batchSize must be set.
+        batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         startDate : ( 0000-00-00 ) The earliest date at which a post could be posted. Time zone is UTC. Format is
                     “yyyy-mm-ddThh:mm:ss” or “yyyy-mm-dd” (defaults to time 00:00:00). This must be before endDate.
                     Timeframe and startDate are mutually exclusive; if both are passed, startDate will be preferred.
@@ -255,6 +264,7 @@ class API:
             and_=and_,
             not_=not_,
             count=count,
+            batchSize=batchSize,
             startDate=startDate,
             endDate=endDate,
             inAccountIds=inAccountIds,
@@ -280,6 +290,7 @@ class API:
             self,
             accountIds=None,
             count=50,
+            batchSize=100,
             startDate=None,
             endDate=None,
             listId=0,
@@ -292,7 +303,9 @@ class API:
         accountIds : ( None ) A list of CrowdTangle accountIds to retrieve leaderboard data for. These should be
                     provided comma-separated. This and listId are mutually exclusive; if both are sent, accountIds will
                      be preferred.
-        count : ( 1-100, default 50 ) The number of AccountStatistics to return. Between 1-100.
+        count : ( positive int or -1, default 50 ) The number of AccountStatistics to return. -1 means to return all available.
+                    If requesting more than 100 AccountStatistics, batchSize must be set.
+        batchSize : ( 1-100, default 100 ) Number of AccountStatistics to return at most per call to the endpoint. Between 1-100.
         startDate : ( 0000-00-00, default one day earlier than endDate ) The startDate of the leaderboard rage. Time
                     zone is UTC. Format is “yyyy-mm-ddThh:mm:ss” or “yyyy-mm-dd” (defaults to time 00:00:00). This must
                     be before endDate.
@@ -310,6 +323,7 @@ class API:
             token=self._token,
             accountIds=accountIds,
             count=count,
+            batchSize=batchSize,
             startDate=startDate,
             endDate=endDate,
             listId=listId,
@@ -333,6 +347,7 @@ class API:
     def links(
             self,
             count=100,
+            batchSize=100,
             startDate="0000-00-00",
             endDate=None,
             sortBy="date",
@@ -343,7 +358,9 @@ class API:
     ):
         """
         Args:
-        count : ( 1-100, default 100 ) The number of posts to return. Between 1-100.
+        count : ( positive int or -1, default 100 ) The number of posts to return. -1 means to return all available.
+                    If requesting more than 100 posts, batchSize must be set.
+        batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         startDate : ( 0000-00-00 ) The earliest date at which a post could be posted. Time zone is UTC. Format is
                     “yyyy-mm-ddThh:mm:ss” or “yyyy-mm-dd” (defaults to time 00:00:00).
         endDate : ( default now ) The latest date at which a post could be posted. Time zone is UTC. Format is
@@ -361,6 +378,7 @@ class API:
         params = dict(
             token=self._token,
             count=count,
+            batchSize=batchSize,
             startDate=startDate,
             endDate=endDate,
             sortBy=sortBy,
@@ -374,12 +392,15 @@ class API:
     def accounts_in_list(
             self,
             count=10,
+            batchSize=100,
             offset=0,
             listId=None,
     ):
         """
         Args:
-        count : ( 1-100, default 10 ) The number of accounts to return.
+        count : ( positive int or -1, default 10 ) The number of accounts to return. -1 means to return all available.
+                If requesting more than 100 accounts, batchSize must be set.
+        batchSize : ( 1-100, default 100 ) Number of accounts to return at most per call to the endpoint. Between 1-100.
         offset : ( >= 0, default 0 ) The number of accounts to offset (generally used for pagination). Pagination links will also
                     be provided in the response.
         listId : ( None ) The id of the list for which to retrieve accounts. This is provided as a path variable in the URL.
@@ -387,6 +408,7 @@ class API:
         params = dict(
             token=self._token,
             count=count,
+            batchSize=batchSize,
             offset=offset,
             listId=listId,
         )
