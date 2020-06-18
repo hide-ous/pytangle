@@ -26,7 +26,7 @@ if __name__ == '__main__':
     logger.info(my_lists)
     a_list = my_lists[-1]
 
-    print(a_list)
+    logger.debug(a_list)
     # param_dict = dict(token=token_)
     # param_dict['listId'] = a_list['id']
     # param_dict['count'] = 100
@@ -51,4 +51,4 @@ if __name__ == '__main__':
             # logger.info(post)
             # break
             if counter % 1000 == 0:
-                print(counter)
+                logger.debug(counter)
