@@ -27,7 +27,7 @@ def links(**args):
 
 
 def leaderboard(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'leaderboard', make_request_1_every_10s)
+    return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics', make_request_1_every_10s)
 
 
 def search(**args):
