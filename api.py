@@ -171,6 +171,7 @@ class API:
             self,
             id,
             account=None,
+            includeHistory=None,
             endpoint='ct'
     ):
         """
@@ -180,10 +181,13 @@ class API:
                     This is provided as a path variable in the URL.
         account : ( None ) Ignored if endpoint == "ct". The slug or ID of the posting account on its platform. This is
                     required for Reddit, ignored for Facebook and Instagram (where a post ID contain the account's ID).
+        includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
+                    returned.
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
        """
         params = dict(id=id,
                       account=account,
+                      includeHistory=includeHistory,
                       )
         yield from post_id(endpoint, **remove_null_values_from_dict(params))
 
@@ -192,6 +196,7 @@ class API:
             and_=None,
             not_=None,
             count=10,
+            includeHistory=None,
             batchSize=100,
             startDate=None,
             endDate=None,
@@ -220,6 +225,8 @@ class API:
         not_ : ( None ) A corollary to and_, not_ will exclude all posts matching this word.
         count : ( positive int or -1, default 10 ) The number of posts to return. -1 means to return all available.
                     If requesting more than 100 posts, batchSize must be set.
+        includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
+                    returned.
         batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         startDate : ( 0000-00-00 ) The earliest date at which a post could be posted. Time zone is UTC. Format is
                     “yyyy-mm-ddThh:mm:ss” or “yyyy-mm-dd” (defaults to time 00:00:00). This must be before endDate.
@@ -268,6 +275,7 @@ class API:
             and_=and_,
             not_=not_,
             count=count,
+            includeHistory=includeHistory,
             batchSize=batchSize,
             startDate=startDate,
             endDate=endDate,
@@ -365,6 +373,8 @@ class API:
         Args:
         count : ( positive int or -1, default 100 ) The number of posts to return. -1 means to return all available.
                     If requesting more than 100 posts, batchSize must be set.
+        includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
+                    returned.
         batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         startDate : ( 0000-00-00 ) The earliest date at which a post could be posted. Time zone is UTC. Format is
                     “yyyy-mm-ddThh:mm:ss” or “yyyy-mm-dd” (defaults to time 00:00:00).
