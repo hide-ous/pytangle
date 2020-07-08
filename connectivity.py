@@ -41,7 +41,7 @@ def make_request(uri, params, max_retries=5):
         except requests.exceptions.HTTPError as errh:
             logger.error("Http Error:", errh)
             error_details = defaultdict(lambda: None)
-            try: error_details.update(json.loads(errh.response.content))
+            try: error_details.update(json.loads(errh.response.content.decode()))
             except AttributeError as e: pass
             except JSONDecodeError as e: logger.debug(e)
             error_details['http_status'] = errh.response.status_code
