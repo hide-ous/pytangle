@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 
 import requests
+from numpy.distutils.system_info import system_info
 from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
@@ -39,7 +40,9 @@ def make_request(uri, params, max_retries=5):
             return json.loads(response.content.decode('utf-8'))
         except requests.exceptions.HTTPError as errh:
             logger.error("Http Error:", errh)
-            error_details = defaultdict(None, json.loads(errh.response.content))
+            error_details = defaultdict(lambda: None)
+            try: error_details.update(json.loads(errh.response.content))
+            except AttributeError: pass
             error_details['http_status'] = errh.response.status_code
             error_message = error_details['message']
             error_ct_status = error_details['ct_status']
@@ -56,20 +59,21 @@ def make_request(uri, params, max_retries=5):
             if error_http_status == 429:  # rate limit exceeded
                 raise RateLimitException()  # should be handled by ratelimit
             elif error_code == 20:  # Unknown Parameter
-                raise errh
+                exit(-1)
             elif error_code == 21:  # Illegal Parameter Value
-                raise errh
+                exit(-1)
             elif error_code == 22:  # Missing Parameter
-                raise errh
+                exit(-1)
             elif error_code == 30:  # Missing Token
-                raise errh
+                exit(-1)
             elif error_code == 31:  # Invalid Token
-                raise errh
+                exit(-1)
             elif error_code == 40:  # Does Not Exist
-                raise errh
+                exit(-1)
             elif error_code == 41:  # Not Allowed
-                raise errh
+                exit(-1)
             elif error_http_status / 100 == 4:  # 4XX error other than 429
+                time.sleep(60)
                 raise errh
             elif error_http_status / 100 == 5:  # 5XX error
                 # TODO: add config for how long to wait
