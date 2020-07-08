@@ -360,6 +360,7 @@ class API:
     def links(
             self,
             count=100,
+            includeHistory=None,
             batchSize=100,
             startDate="0000-00-00",
             endDate=None,
@@ -393,6 +394,7 @@ class API:
         params = dict(
             token=self._token,
             count=count,
+            includeHistory=includeHistory,
             batchSize=batchSize,
             startDate=startDate,
             endDate=endDate,
