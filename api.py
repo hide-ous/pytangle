@@ -23,7 +23,7 @@ def posts(**args):
 
 
 def links(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/links', 'links', make_request_1_every_30s)
+    return iterate_request(args, 'https://api.crowdtangle.com/links', 'posts', make_request_1_every_30s)
 
 
 def leaderboard(**args):
@@ -344,6 +344,7 @@ class API:
         )
         return lists(**remove_null_values_from_dict(params))
 
+    #FIXME: This returns the same response as /posts. There is no option for pagination on a links request.
     def links(
             self,
             count=100,

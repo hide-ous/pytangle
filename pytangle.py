@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+from urllib.parse import quote
 from itertools import islice
 
 from api import *
@@ -22,11 +23,27 @@ if __name__ == '__main__':
                             )
     logger = logging.getLogger()
 
+    # param_dict = dict(token=token_, startDate="2020-01-01", endDate='2020-01-10', count=10)
+    # print(list(leaderboard(**dict(token=token_, startDate="2020-01-01", endDate='2020-01-10', count=110, batchSize=100))))
+
+    print(list(links(
+            **dict(
+        token=token_,
+            count=10,
+            sortBy="total_interactions",
+            link=("""https://www.washingtonexaminer.com/news/key-mueller-witness-george-nader-sentenced-to-10-years-in-prison-for-child-sex-charges"""),
+            platforms='facebook',)
+    )))
+
+    sys.exit(0)
     my_lists = lists(**{"token": token_})
     logger.info(my_lists)
     a_list = my_lists[-1]
 
     logger.debug(a_list)
+
+
+
     # param_dict = dict(token=token_)
     # param_dict['listId'] = a_list['id']
     # param_dict['count'] = 100
