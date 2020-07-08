@@ -73,6 +73,7 @@ class API:
             endDate=None,
             sortBy="overperforming",
             count=10,
+            includeHistory=None,
             batchSize=100,
             language=None,
             minInteractions=0,
@@ -104,6 +105,8 @@ class API:
                      sorting by overperforming.
         count : ( positive int or -1, default 10 ) The number of posts to return. -1 means to return all available.
                     If requesting more than 100 posts, batchSize must be set.
+        includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
+                    returned.
         batchSize : ( 1-100, default 100 ) Number of posts to return at most per call to the endpoint. Between 1-100.
         language : ( None, i.e. all languages ) Exceptions: Some languages require more than two characters: Chinese
                     (Simplified) is zh-CN and Chinese (Traditional) is zh-TW.
@@ -144,6 +147,7 @@ class API:
             endDate=endDate,
             sortBy=sortBy,
             count=count,
+            includeHistory=includeHistory,
             batchSize=batchSize,
             language=language,
             minInteractions=minInteractions,
