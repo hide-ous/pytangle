@@ -1,9 +1,3 @@
-import json
-import logging
-import sys
-from urllib.parse import quote
-from itertools import islice
-
 from api import *
 import logging.config
 
@@ -23,9 +17,6 @@ if __name__ == '__main__':
                             )
     logger = logging.getLogger()
 
-    # param_dict = dict(token=token_, startDate="2020-01-01", endDate='2020-01-10', count=10)
-    # print(list(leaderboard(**dict(token=token_, startDate="2020-01-01", endDate='2020-01-10', count=110, batchSize=100))))
-
     print(list(links(
             **dict(
         token=token_,
@@ -41,14 +32,6 @@ if __name__ == '__main__':
     a_list = my_lists[-1]
 
     logger.debug(a_list)
-
-
-
-    # param_dict = dict(token=token_)
-    # param_dict['listId'] = a_list['id']
-    # param_dict['count'] = 100
-    # for account in islice(accounts_in_list(**param_dict), 300):
-    #     logger.info(account)
 
     param_dict = dict(token=token_)
     param_dict['listIds'] = [a_list['id']]

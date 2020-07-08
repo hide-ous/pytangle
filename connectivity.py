@@ -1,9 +1,9 @@
 import time
 import json
 from collections import defaultdict
+from json import JSONDecodeError
 
 import requests
-from numpy.distutils.system_info import system_info
 from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
@@ -42,7 +42,8 @@ def make_request(uri, params, max_retries=5):
             logger.error("Http Error:", errh)
             error_details = defaultdict(lambda: None)
             try: error_details.update(json.loads(errh.response.content))
-            except AttributeError: pass
+            except AttributeError as e: pass
+            except JSONDecodeError as e: logger.debug(e)
             error_details['http_status'] = errh.response.status_code
             error_message = error_details['message']
             error_ct_status = error_details['ct_status']
