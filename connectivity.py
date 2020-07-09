@@ -64,7 +64,7 @@ def make_request(uri, params, max_retries=5):
                          "error url:", error_url)
 
             if error_http_status == 429:  # rate limit exceeded
-                raise RateLimitException()  # should be handled by ratelimit
+                raise  # should be handled by ratelimit
             elif error_code == 20:  # Unknown Parameter
                 exit(-1)
             elif error_code == 21:  # Illegal Parameter Value
@@ -106,35 +106,6 @@ def make_request(uri, params, max_retries=5):
     raise last_exception
 
 
-def iterate_request(param_dict, endpoint, response_field, request_fun):
-    # FIXME: poor design, hiding parameters in data
-    count = -1
-    if "batchSize" in param_dict:
-        if "count" in param_dict:
-            count = param_dict.pop('count')
-        param_dict['count'] = param_dict.pop('batchSize')
-    elif "count" in param_dict:
-        count = param_dict['count']
-
-    next_page = endpoint
-    n_yielded = 0
-    while next_page:
-        response = request_fun(next_page, param_dict)
-        next_page = None
-        for result in response['result'][response_field]:
-            if (count == -1) or (n_yielded < count):
-                yield result
-                n_yielded += 1
-        if ('pagination' in response['result']) and \
-                ("nextPage" in response["result"]['pagination']) and \
-                ((count == -1) or (n_yielded < count)):
-            next_page = response['result']['pagination']['nextPage']
-            param_dict = dict()
-
-
-from endpoints import EndpointOneShotCall
-
-
 class Paginator:
     def __init__(self, endpoint, max_cached_ids=100):
         self.endpoint = endpoint
@@ -171,7 +142,6 @@ class Paginator:
         self.response = response
 
         # update results
-        logger.error(response['result'])
         if not (response['result'][self.response_field]):
             logger.debug('no results returned')
             self.next_page = None
@@ -201,7 +171,7 @@ class Paginator:
         self.previous_page = pagination['nextPage']
 
         # update current offset and end date
-        logger.error("next page", self.next_page)
+        logger.debug("next page: {}".format(self.next_page))
         self.next_page_params = defaultdict(lambda: None)
         if self.next_page:
             self.next_page_params.update(parse_qs(urlparse(self.next_page).query))
@@ -217,37 +187,27 @@ class Paginator:
             self.has_next_page = False
         # make it a regular dictionary
         self.next_page_params = dict(self.next_page_params)
-        logger.error(self.next_page_params)
+        logger.debug(str(self.next_page_params))
 
     def __is_spent(self):
-        if len(self.current_results)>0:  # not returned all cached results
-            logger.error('not returned all cached results')
+        if -1 < self.total_count <= self.returned_count:  # returned all of the items requested
+            return True
+        elif len(self.current_results)>0:  # not returned all cached results
             return False
-        elif -1 < self.total_count <= self.returned_count:  # returned all of the items requested
-            logger.error(r"eturned all of the items requested")
-            return True
         elif not self.has_next_page:  # has a next page to fetch
-            logger.error('has no next page to fetch')
             return True
-        # elif isinstance(self.endpoint, EndpointOneShotCall) and not self.has_next_page:  # is one shot endpoint
-        #     logger.error('is one shot endpoint')
-        #     return True
         return False
 
     def __next__(self):
-        logger.error("in next")
         if self.__is_spent():
-            logger.error("iterator spent")
             raise StopIteration
         if not len(self.current_results):
-            logger.error("fetch new response")
             self.__fetch_next_response()
         if self.__is_spent():
-            logger.error("iterator spent after fetch")
+            #may have fetched no results
             raise StopIteration
         self.returned_count += 1
 
-        logger.error("return smt in next")
         return self.current_results.popleft()
 
     def __iter__(self):

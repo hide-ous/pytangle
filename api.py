@@ -15,46 +15,6 @@ CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__fi
 logger = logging.getLogger()
 
 
-# def lists(**args):  # FIXME could need iteration as well
-#     response = make_request('https://api.crowdtangle.com/lists', args)
-#     return response['result']['lists']
-#
-#
-# def posts(**args):
-#     return iterate_request(args, 'https://api.crowdtangle.com/posts', 'posts', make_request_1_every_10s)
-#
-#
-# def links(**args):
-#     return iterate_request(args, 'https://api.crowdtangle.com/links', 'posts', make_request_1_every_30s)
-#
-#
-# def leaderboard(**args):
-#     return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics',
-#                            make_request_1_every_10s)
-#
-#
-# def search(**args):
-#     return iterate_request(args, 'https://api.crowdtangle.com/search', 'search', make_request_1_every_10s)
-#
-#
-# def accounts_in_list(**args):
-#     list_id = args.pop('listId')
-#     return iterate_request(args, 'https://api.crowdtangle.com/lists/{}/accounts'.format(list_id), 'accounts',
-#                            make_request_1_every_10s)
-#
-#
-# def post_id(endpoint, **args):
-#     endpoint_url = None
-#     if endpoint == "platform":
-#         endpoint_url = "https://api.crowdtangle.com/post/{}"  # TODO: the api does not support https
-#     elif endpoint == "ct":
-#         endpoint_url = "https://api.crowdtangle.com/ctpost/{}"  # TODO: the api does not support https
-#
-#     id = args.pop('id')
-#     response = make_request(endpoint_url.format(id), args)
-#     return response['result']["posts"]
-
-
 class API:
 
     def __init__(self, token=None):
@@ -170,7 +130,6 @@ class API:
             weightWow=weightWow,
         )
         yield from Paginator(endpoint=PostsEndpoint(args=remove_null_values_from_dict(params)))
-        # yield from posts(**remove_null_values_from_dict(params))
 
     def post(
             self,
@@ -196,7 +155,6 @@ class API:
                       includeHistory=includeHistory,
                       )
         yield from Paginator(endpoint=PostEndpoint(endpoint=endpoint, args=remove_null_values_from_dict(params)))
-        # yield from post_id(endpoint, **remove_null_values_from_dict(params))
 
     def search(
             self,
@@ -304,7 +262,6 @@ class API:
             language=language,
         )
         yield from Paginator(endpoint=SearchEndpoint(args=remove_null_values_from_dict(params)))
-        # yield from search(**remove_null_values_from_dict(params))
 
     def leaderboard(
             self,
@@ -352,7 +309,6 @@ class API:
             sortBy=sortBy,
         )
         yield from Paginator(endpoint=LeaderboardEndpoint(args=remove_null_values_from_dict(params)))
-        # yield from leaderboard(**remove_null_values_from_dict(params))
 
     def lists(
             self,
@@ -364,7 +320,6 @@ class API:
             token=self._token,
         )
         yield from Paginator(endpoint=ListsEndpoint(args=remove_null_values_from_dict(params)))
-        # return lists(**remove_null_values_from_dict(params))
 
     def links(
             self,
@@ -414,7 +369,6 @@ class API:
             platforms=platforms,
         )
         yield from Paginator(endpoint=LinksEndpoint(args=remove_null_values_from_dict(params)))
-        # yield from links(**remove_null_values_from_dict(params))
 
     def accounts_in_list(
             self,
@@ -440,4 +394,3 @@ class API:
             listId=listId,
         )
         yield from Paginator(endpoint=AccountsEndpoint(args=remove_null_values_from_dict(params)))
-        # yield from accounts_in_list(**remove_null_values_from_dict(params))
