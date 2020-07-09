@@ -13,7 +13,7 @@ CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__fi
 logger = logging.getLogger()
 
 
-def lists(**args):#FIXME could need iteration as well
+def lists(**args):  # FIXME could need iteration as well
     response = make_request('https://api.crowdtangle.com/lists', args)
     return response['result']['lists']
 
@@ -27,7 +27,8 @@ def links(**args):
 
 
 def leaderboard(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics', make_request_1_every_10s)
+    return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics',
+                           make_request_1_every_10s)
 
 
 def search(**args):
@@ -356,7 +357,7 @@ class API:
         )
         return lists(**remove_null_values_from_dict(params))
 
-    #FIXME: This returns the same response as /posts. There is no option for pagination on a links request.
+    # FIXME: This returns the same response as /posts. There is no option for pagination on a links request.
     def links(
             self,
             count=100,

@@ -1,12 +1,17 @@
 import time
 import json
-from collections import defaultdict
+from collections import defaultdict, deque
+from copy import deepcopy
 from json import JSONDecodeError
+from urllib.parse import urlparse, parse_qs
 
+import dateutil
 import requests
 from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
+
+from endpoints import EndpointOneShotCall
 
 logger = logging.getLogger()
 
@@ -41,9 +46,12 @@ def make_request(uri, params, max_retries=5):
         except requests.exceptions.HTTPError as errh:
             logger.error("Http Error:", errh)
             error_details = defaultdict(lambda: None)
-            try: error_details.update(json.loads(errh.response.content.decode()))
-            except AttributeError as e: pass
-            except JSONDecodeError as e: logger.debug(e)
+            try:
+                error_details.update(json.loads(errh.response.content.decode()))
+            except AttributeError as e:
+                pass
+            except JSONDecodeError as e:
+                logger.debug(e)
             error_details['http_status'] = errh.response.status_code
             error_message = error_details['message']
             error_ct_status = error_details['ct_status']
@@ -124,3 +132,95 @@ def iterate_request(param_dict, endpoint, response_field, request_fun):
                 ((count == -1) or (n_yielded < count)):
             next_page = response['result']['pagination']['nextPage']
             param_dict = dict()
+
+
+class Paginator:
+    def __init__(self, endpoint, max_cached_ids=100):
+        self.endpoint = endpoint
+        self.cached_ids = deque(max_len=max_cached_ids)
+
+        self.request_fun = endpoint.request_function()
+        self.response_field = endpoint.get_response_field_name()
+        self.param_dict = deepcopy(endpoint.args)
+        self.max_offset_threshold = endpoint.max_query_offset()
+        self.endpoint_url = endpoint.get_endpoint_url()
+
+        self.returned_count = None
+
+        self.next_page = None
+        self.previous_page = None
+        self.response = None
+        self.current_results = deque()
+        self.has_next_page = True
+
+        count = -1
+        if "batchSize" in self.param_dict:
+            if "count" in self.param_dict:
+                count = self.param_dict.pop('count')
+            self.param_dict['count'] = self.param_dict.pop('batchSize')
+        elif "count" in self.param_dict:
+            count = self.param_dict['count']
+        self.total_count = count
+        self.next_page_params = deepcopy(self.param_dict)
+
+    def __fetch_next_response(self):
+        # call CT
+        response = self.request_fun(self.endpoint_url,
+                                    self.next_page_params)
+        self.response = response
+
+        # update results
+        new_ids_to_cache = list()
+        for result in response['result'][self.response_field]:
+            # check for duplicates
+            try:
+                result_id = self.endpoint.get_response_item_id(result)
+                if result_id not in self.cached_ids:
+                    self.current_results.append(result)
+                    new_ids_to_cache.append(result_id)
+            except NotImplementedError:
+                self.current_results.append(result)
+        if len(new_ids_to_cache):
+            self.cached_ids.extend(new_ids_to_cache)
+
+        # update pagination information
+        pagination = defaultdict(lambda: None)
+        if 'pagination' in response['result']:
+            pagination.update(response["result"]['pagination'])
+        self.next_page = pagination['nextPage']
+        self.previous_page = pagination['nextPage']
+
+        # update current offset and end date
+        self.next_page_params = defaultdict(lambda: None)
+        if self.next_page:
+            self.next_page_params.update(parse_qs(urlparse(self.next_page).query))
+            # if offset overflows
+            if self.next_page_params['offset'] > self.max_offset_threshold:
+                # if sorting by date, retract endDate, reset offset
+                # (does not apply to leaderboard, which can't sortBy date)
+                if self.next_page_params['sortBy'] == ["date"]:
+                    self.next_page_params['offset'] = 0
+                    end_date = dateutil.parser.parse(self.current_results[-1]['date'])
+                    self.next_page_params['endDate'] = end_date.strftime('%Y-%m-%dT%H:%M:%S')
+        else:
+            self.has_next_page = False
+        # make it a regular dictionary
+        self.next_page_params = dict(self.next_page_params)
+
+    def __is_spent(self):
+        if not len(self.current_results):  # not returned all cached results
+            if -1 < self.total_count <= self.returned_count:  # returned all of the items requested
+                return True
+            if not self.has_next_page:  # no next page to fetch
+                return True
+            if isinstance(self.endpoint, EndpointOneShotCall):  # is one shot endpoint
+                return True
+        return False
+
+    def __next__(self):
+        if self.__is_spent():
+            raise StopIteration()
+        if not len(self.current_results):
+            self.__fetch_next_response()
+        self.returned_count += 1
+        return self.current_results.popleft()
