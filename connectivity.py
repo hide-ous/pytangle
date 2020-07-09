@@ -5,7 +5,7 @@ from copy import deepcopy
 from json import JSONDecodeError
 from urllib.parse import urlparse, parse_qs
 from sys import exit
-import dateutil
+from dateutil.parser import parse as date_parse
 import requests
 from ratelimit import limits, sleep_and_retry, RateLimitException
 
@@ -64,7 +64,9 @@ def make_request(uri, params, max_retries=5):
                          "error url:", error_url)
 
             if error_http_status == 429:  # rate limit exceeded
-                raise  # should be handled by ratelimit
+                # raise  # should be handled by ratelimit #it's actually not
+                time.sleep(30)
+
             elif error_code == 20:  # Unknown Parameter
                 exit(-1)
             elif error_code == 21:  # Illegal Parameter Value
@@ -132,11 +134,13 @@ class Paginator:
             self.param_dict['count'] = self.param_dict.pop('batchSize')
         elif "count" in self.param_dict:
             count = self.param_dict['count']
+
         self.total_count = count
         self.next_page_params = deepcopy(self.param_dict)
 
     def __fetch_next_response(self):
         # call CT
+        logger.debug("call params "+str(self.next_page_params))
         response = self.request_fun(self.endpoint_url,
                                     self.next_page_params)
         self.response = response
@@ -181,7 +185,7 @@ class Paginator:
                 # (does not apply to leaderboard, which can't sortBy date)
                 if self.next_page_params['sortBy'] == ["date"]:
                     self.next_page_params['offset'] = 0
-                    end_date = dateutil.parser.parse(self.current_results[-1]['date'])
+                    end_date = date_parse(self.current_results[-1]['date'])
                     self.next_page_params['endDate'] = end_date.strftime('%Y-%m-%dT%H:%M:%S')
         else:
             self.has_next_page = False

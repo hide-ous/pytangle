@@ -18,14 +18,14 @@ logger = logging.getLogger()
 class API:
 
     def __init__(self, token=None):
-        if token == None:
+        if token is None:
             # try to get the token from the configuration files
             for config_file_location in CONFIG_FILE_LOCATIONS:
                 if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
                     with open(config_file_location) as f:
                         token = json.load(f)['token']
 
-        if token == None:
+        if token is None:
             raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: " + \
                              str(CONFIG_FILE_LOCATIONS))
         self._token = token
