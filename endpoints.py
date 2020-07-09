@@ -7,6 +7,9 @@ from connectivity import make_request_1_every_10s, make_request_1_every_30s, mak
 class Endpoint(ABC):
     def __init__(self, args):
         self.args = deepcopy(args)
+        if self.has_endpoint_parameter_name():
+            endpoint_parameter_name = self.get_endpoint_parameter_name()
+            self.endpoint_parameter = self.args.pop(endpoint_parameter_name)
 
     @classmethod
     def get_endpoint_template(cls):
@@ -14,10 +17,9 @@ class Endpoint(ABC):
 
     def get_endpoint_url(self):
         if self.has_endpoint_parameter_name():
-            return self.get_endpoint_template()
+            return self.get_endpoint_template().format(self.endpoint_parameter)
         else:
-            endpoint_parameter_name = self.get_endpoint_parameter_name()
-            return self.get_endpoint_template().format(self.args[endpoint_parameter_name])
+            return self.get_endpoint_template()
 
     @classmethod
     def has_endpoint_parameter_name(cls):
@@ -48,19 +50,19 @@ class Endpoint(ABC):
         raise NotImplementedError
 
 
-class Endpoint6CPM(Endpoint):
+class Endpoint6CPM(Endpoint, ABC):
     @classmethod
     def request_function(cls):
         return make_request_1_every_10s
 
 
-class Endpoint2CPM(Endpoint):
+class Endpoint2CPM(Endpoint, ABC):
     @classmethod
     def request_function(cls):
         return make_request_1_every_30s
 
 
-class EndpointOneShotCall(Endpoint):
+class EndpointOneShotCall(Endpoint, ABC):
     @classmethod
     def request_function(cls):
         return make_request
@@ -70,10 +72,6 @@ class ListsEndpoint(EndpointOneShotCall):
     @classmethod
     def get_endpoint_template(cls):
         return 'https://api.crowdtangle.com/lists'
-
-    @classmethod
-    def get_endpoint_parameter_name(cls):
-        raise NotImplementedError
 
     @classmethod
     def get_response_field_name(cls):
@@ -90,10 +88,6 @@ class PostsEndpoint(Endpoint6CPM):
         return 'https://api.crowdtangle.com/posts'
 
     @classmethod
-    def get_endpoint_parameter_name(cls):
-        raise NotImplementedError
-
-    @classmethod
     def get_response_field_name(cls):
         return 'posts'
 
@@ -106,10 +100,6 @@ class LinksEndpoint(Endpoint2CPM):
     @classmethod
     def get_endpoint_template(cls):
         return 'https://api.crowdtangle.com/links'
-
-    @classmethod
-    def get_endpoint_parameter_name(cls):
-        raise NotImplementedError
 
     @classmethod
     def get_response_field_name(cls):
@@ -126,10 +116,6 @@ class LeaderboardEndpoint(Endpoint6CPM):
         return 'https://api.crowdtangle.com/leaderboard'
 
     @classmethod
-    def get_endpoint_parameter_name(cls):
-        raise NotImplementedError
-
-    @classmethod
     def get_response_field_name(cls):
         return 'accountStatistics'
 
@@ -142,10 +128,6 @@ class SearchEndpoint(Endpoint6CPM):
     @classmethod
     def get_endpoint_template(cls):
         return 'https://api.crowdtangle.com/posts/search'
-
-    @classmethod
-    def get_endpoint_parameter_name(cls):
-        raise NotImplementedError
 
     @classmethod
     def get_response_field_name(cls):

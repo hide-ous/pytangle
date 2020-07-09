@@ -2,7 +2,9 @@ import json
 import os
 import sys
 
-from connectivity import make_request, make_request_1_every_10s, iterate_request, make_request_1_every_30s
+from connectivity import Paginator
+from endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, LinksEndpoint, \
+    AccountsEndpoint
 from utils import remove_null_values_from_dict
 import logging
 
@@ -13,44 +15,44 @@ CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__fi
 logger = logging.getLogger()
 
 
-def lists(**args):  # FIXME could need iteration as well
-    response = make_request('https://api.crowdtangle.com/lists', args)
-    return response['result']['lists']
-
-
-def posts(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/posts', 'posts', make_request_1_every_10s)
-
-
-def links(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/links', 'posts', make_request_1_every_30s)
-
-
-def leaderboard(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics',
-                           make_request_1_every_10s)
-
-
-def search(**args):
-    return iterate_request(args, 'https://api.crowdtangle.com/search', 'search', make_request_1_every_10s)
-
-
-def accounts_in_list(**args):
-    list_id = args.pop('listId')
-    return iterate_request(args, 'https://api.crowdtangle.com/lists/{}/accounts'.format(list_id), 'accounts',
-                           make_request_1_every_10s)
-
-
-def post_id(endpoint, **args):
-    endpoint_url = None
-    if endpoint == "platform":
-        endpoint_url = "https://api.crowdtangle.com/post/{}"  # TODO: the api does not support https
-    elif endpoint == "ct":
-        endpoint_url = "https://api.crowdtangle.com/ctpost/{}"  # TODO: the api does not support https
-
-    id = args.pop('id')
-    response = make_request(endpoint_url.format(id), args)
-    return response['result']["posts"]
+# def lists(**args):  # FIXME could need iteration as well
+#     response = make_request('https://api.crowdtangle.com/lists', args)
+#     return response['result']['lists']
+#
+#
+# def posts(**args):
+#     return iterate_request(args, 'https://api.crowdtangle.com/posts', 'posts', make_request_1_every_10s)
+#
+#
+# def links(**args):
+#     return iterate_request(args, 'https://api.crowdtangle.com/links', 'posts', make_request_1_every_30s)
+#
+#
+# def leaderboard(**args):
+#     return iterate_request(args, 'https://api.crowdtangle.com/leaderboard', 'accountStatistics',
+#                            make_request_1_every_10s)
+#
+#
+# def search(**args):
+#     return iterate_request(args, 'https://api.crowdtangle.com/search', 'search', make_request_1_every_10s)
+#
+#
+# def accounts_in_list(**args):
+#     list_id = args.pop('listId')
+#     return iterate_request(args, 'https://api.crowdtangle.com/lists/{}/accounts'.format(list_id), 'accounts',
+#                            make_request_1_every_10s)
+#
+#
+# def post_id(endpoint, **args):
+#     endpoint_url = None
+#     if endpoint == "platform":
+#         endpoint_url = "https://api.crowdtangle.com/post/{}"  # TODO: the api does not support https
+#     elif endpoint == "ct":
+#         endpoint_url = "https://api.crowdtangle.com/ctpost/{}"  # TODO: the api does not support https
+#
+#     id = args.pop('id')
+#     response = make_request(endpoint_url.format(id), args)
+#     return response['result']["posts"]
 
 
 class API:
@@ -60,7 +62,8 @@ class API:
             # try to get the token from the configuration files
             for config_file_location in CONFIG_FILE_LOCATIONS:
                 if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
-                    token = json.load(config_file_location)['token']
+                    with open(config_file_location) as f:
+                        token = json.load(f)['token']
 
         if token == None:
             raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: " + \
@@ -166,7 +169,8 @@ class API:
             weightView=weightView,
             weightWow=weightWow,
         )
-        yield from posts(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=PostsEndpoint(args=remove_null_values_from_dict(params)))
+        # yield from posts(**remove_null_values_from_dict(params))
 
     def post(
             self,
@@ -187,10 +191,12 @@ class API:
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
        """
         params = dict(id=id,
+                      token=self._token,
                       account=account,
                       includeHistory=includeHistory,
                       )
-        yield from post_id(endpoint, **remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=PostEndpoint(endpoint=endpoint, args=remove_null_values_from_dict(params)))
+        # yield from post_id(endpoint, **remove_null_values_from_dict(params))
 
     def search(
             self,
@@ -297,7 +303,8 @@ class API:
             verifiedOnly=verifiedOnly,
             language=language,
         )
-        yield from search(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=SearchEndpoint(args=remove_null_values_from_dict(params)))
+        # yield from search(**remove_null_values_from_dict(params))
 
     def leaderboard(
             self,
@@ -344,7 +351,8 @@ class API:
             orderBy=orderBy,
             sortBy=sortBy,
         )
-        yield from leaderboard(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=LeaderboardEndpoint(args=remove_null_values_from_dict(params)))
+        # yield from leaderboard(**remove_null_values_from_dict(params))
 
     def lists(
             self,
@@ -355,15 +363,15 @@ class API:
         params = dict(
             token=self._token,
         )
-        return lists(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=ListsEndpoint(args=remove_null_values_from_dict(params)))
+        # return lists(**remove_null_values_from_dict(params))
 
-    # FIXME: This returns the same response as /posts. There is no option for pagination on a links request.
     def links(
             self,
             count=100,
             includeHistory=None,
             batchSize=100,
-            startDate="0000-00-00",
+            startDate=None,
             endDate=None,
             sortBy="date",
             offset=0,
@@ -405,23 +413,24 @@ class API:
             includeSummary=includeSummary,
             platforms=platforms,
         )
-        yield from links(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=LinksEndpoint(args=remove_null_values_from_dict(params)))
+        # yield from links(**remove_null_values_from_dict(params))
 
     def accounts_in_list(
             self,
+            listId,
             count=10,
             batchSize=100,
             offset=0,
-            listId=None,
     ):
         """
         Args:
+        listId : ( int ) The id of the list for which to retrieve accounts. This is provided as a path variable in the URL.
         count : ( positive int or -1, default 10 ) The number of accounts to return. -1 means to return all available.
                 If requesting more than 100 accounts, batchSize must be set.
         batchSize : ( 1-100, default 100 ) Number of accounts to return at most per call to the endpoint. Between 1-100.
         offset : ( >= 0, default 0 ) The number of accounts to offset (generally used for pagination). Pagination links will also
                     be provided in the response.
-        listId : ( None ) The id of the list for which to retrieve accounts. This is provided as a path variable in the URL.
         """
         params = dict(
             token=self._token,
@@ -430,4 +439,5 @@ class API:
             offset=offset,
             listId=listId,
         )
-        yield from accounts_in_list(**remove_null_values_from_dict(params))
+        yield from Paginator(endpoint=AccountsEndpoint(args=remove_null_values_from_dict(params)))
+        # yield from accounts_in_list(**remove_null_values_from_dict(params))

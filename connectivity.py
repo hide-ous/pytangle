@@ -4,14 +4,12 @@ from collections import defaultdict, deque
 from copy import deepcopy
 from json import JSONDecodeError
 from urllib.parse import urlparse, parse_qs
-
+from sys import exit
 import dateutil
 import requests
 from ratelimit import limits, sleep_and_retry, RateLimitException
 
 import logging
-
-from endpoints import EndpointOneShotCall
 
 logger = logging.getLogger()
 
@@ -134,10 +132,13 @@ def iterate_request(param_dict, endpoint, response_field, request_fun):
             param_dict = dict()
 
 
+from endpoints import EndpointOneShotCall
+
+
 class Paginator:
     def __init__(self, endpoint, max_cached_ids=100):
         self.endpoint = endpoint
-        self.cached_ids = deque(max_len=max_cached_ids)
+        self.cached_ids = deque(maxlen=max_cached_ids)
 
         self.request_fun = endpoint.request_function()
         self.response_field = endpoint.get_response_field_name()
@@ -145,7 +146,7 @@ class Paginator:
         self.max_offset_threshold = endpoint.max_query_offset()
         self.endpoint_url = endpoint.get_endpoint_url()
 
-        self.returned_count = None
+        self.returned_count = 0
 
         self.next_page = None
         self.previous_page = None
@@ -170,6 +171,15 @@ class Paginator:
         self.response = response
 
         # update results
+        logger.error(response['result'])
+        if not (response['result'][self.response_field]):
+            logger.debug('no results returned')
+            self.next_page = None
+            self.previous_page = None
+            self.has_next_page = False
+            self.next_page_params = dict()
+            return
+
         new_ids_to_cache = list()
         for result in response['result'][self.response_field]:
             # check for duplicates
@@ -191,11 +201,12 @@ class Paginator:
         self.previous_page = pagination['nextPage']
 
         # update current offset and end date
+        logger.error("next page", self.next_page)
         self.next_page_params = defaultdict(lambda: None)
         if self.next_page:
             self.next_page_params.update(parse_qs(urlparse(self.next_page).query))
             # if offset overflows
-            if self.next_page_params['offset'] > self.max_offset_threshold:
+            if int(self.next_page_params['offset'][0]) > self.max_offset_threshold:
                 # if sorting by date, retract endDate, reset offset
                 # (does not apply to leaderboard, which can't sortBy date)
                 if self.next_page_params['sortBy'] == ["date"]:
@@ -206,21 +217,38 @@ class Paginator:
             self.has_next_page = False
         # make it a regular dictionary
         self.next_page_params = dict(self.next_page_params)
+        logger.error(self.next_page_params)
 
     def __is_spent(self):
-        if not len(self.current_results):  # not returned all cached results
-            if -1 < self.total_count <= self.returned_count:  # returned all of the items requested
-                return True
-            if not self.has_next_page:  # no next page to fetch
-                return True
-            if isinstance(self.endpoint, EndpointOneShotCall):  # is one shot endpoint
-                return True
+        if len(self.current_results)>0:  # not returned all cached results
+            logger.error('not returned all cached results')
+            return False
+        elif -1 < self.total_count <= self.returned_count:  # returned all of the items requested
+            logger.error(r"eturned all of the items requested")
+            return True
+        elif not self.has_next_page:  # has a next page to fetch
+            logger.error('has no next page to fetch')
+            return True
+        # elif isinstance(self.endpoint, EndpointOneShotCall) and not self.has_next_page:  # is one shot endpoint
+        #     logger.error('is one shot endpoint')
+        #     return True
         return False
 
     def __next__(self):
+        logger.error("in next")
         if self.__is_spent():
-            raise StopIteration()
+            logger.error("iterator spent")
+            raise StopIteration
         if not len(self.current_results):
+            logger.error("fetch new response")
             self.__fetch_next_response()
+        if self.__is_spent():
+            logger.error("iterator spent after fetch")
+            raise StopIteration
         self.returned_count += 1
+
+        logger.error("return smt in next")
         return self.current_results.popleft()
+
+    def __iter__(self):
+        return self
