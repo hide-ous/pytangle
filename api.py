@@ -16,8 +16,16 @@ logger = logging.getLogger()
 
 
 class API:
-
     def __init__(self, token=None):
+        """
+        Wrapper for calling crowdtangle endpoints. All methods return iterators over the objects returned by
+        crowdtangle. Rate limiting, deduplication, and pagination are handled automatically.
+        Before using the methods in this class, first instantiate it by passing a token associated with your dashboard.
+        If no token is provided, it will try to load it from config.py, if found in  CONFIG_FILE_LOCATIONS
+
+        Args:
+            token: (str, default None) A valid crowdtangle token
+        """
         if token is None:
             # try to get the token from the configuration files
             for config_file_location in CONFIG_FILE_LOCATIONS:
@@ -104,6 +112,9 @@ class API:
         weightView : ( 0-10, default 0 )
         weightWow : ( 0-10, default 0 )
 
+        Returns:
+        iterator of posts (dict)
+
         Example use:
         from api import API
         api = API()
@@ -157,6 +168,9 @@ class API:
         includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
                     returned.
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
+
+        Returns:
+        iterator with a single post (dict) if available
 
         Example use:
         from api import API
@@ -254,6 +268,9 @@ class API:
         language : ( None, i.e. all languages ) Exceptions: Some languages require more than two characters: Chinese
                     (Simplified) is zh-CN and Chinese (Traditional) is zh-TW.
 
+        Returns:
+        iterator of posts (dict)
+
         Example use:
 
         from api import API
@@ -333,6 +350,9 @@ class API:
         sortBy : ( total_interactions, interaction_rate, default total_interactions ) The method by which the
                     accountStatistics are sorted.
 
+        Returns:
+        iterator of accounts (dict)
+
         Example use:
         from api import API
         api = API()
@@ -361,6 +381,9 @@ class API:
         """
         Retrieve the lists, saved searches and saved post lists of the dashboard associated with the token sent in.
 
+        Returns:
+        iterator of lists (dict)
+            
         Example use:
         from api import API
         api = API()
@@ -408,6 +431,9 @@ class API:
                     for startDate.
         platforms : ( facebook,instagram, default None i.e. all platforms ) The platforms from which to retrieve links. This value can be comma-separated.
 
+        Returns:
+        iterator of posts (dict)
+            
         Example use:
         from api import API
         api = API()
@@ -449,6 +475,9 @@ class API:
         offset : ( >= 0, default 0 ) The number of accounts to offset (generally used for pagination). Pagination links will also
                     be provided in the response.
 
+        Returns:
+        iterator of accounts (dict)
+            
         Example use:
 
         from api import API
