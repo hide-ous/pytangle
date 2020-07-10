@@ -3,7 +3,7 @@ A python wrapper for crowdtangle
 
 ### In this repository
 - `pytangle.py`: main file with examples
-- `pytangle/api.py`: object oriented and functional interfaces to the api
+- `pytangle/api.py`: object oriented interface to the api
 - `pytangle/connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
 - `pytangle/endpoints.py`: objects detailing the crowdtangle API endpoints 
 - `pytangle/utils.py`: common utility procedures
@@ -44,8 +44,8 @@ It is easy to use the API. Just create an API instance, and start querying way. 
 ```python
 from pytangle.api import API
 api = API()
-#use the following line instead if you do not want to set up a configuration file
-#api = API(token="YOUR_TOKEN") 
+# use the following line instead if you do not want to set up a configuration file
+# api = API(token="YOUR_TOKEN") 
 ```
 
 All query methods return an iterator, one result object (i.e. one post, account, ...) at a time. For example, to fetch 
@@ -135,14 +135,20 @@ for n, a_post in enumerate(api.posts(listIds=list_ids,
 ```
 ### Configuring `pytangle`
 
-The configuration file `config.py` is a simple json file, containing two main sections:
+The configuration file `config.json` is a simple json file, containing two main sections:
 - `token`: is the API token associated with a dashboard within crowdtangle. If you have access to
  the API, you can locate your API token via your dashboard under Settings > API Access.  
 - `logging`: is a dictionary of items determining how pytangle should log. It follows the conventions
 in `logging.dictConfig`: for explanations on the various options see the 
 [official reference](https://docs.python.org/3/library/logging.config.html#dictionary-schema-details).
 
-The default locations for `config.py` are at the root of the presently used module, or in the user's home. 
+The default locations for `config.json` are:
+ - at the root of the presently used module, or 
+ - in the user's home.
+  
 An API instance will attempt to load the token from the configuration file, if a token is not explicitly passed.
 `pytangle.py` shows an example of how to initialize loggers using the configuration in `config.py`. However, the API
 will not load the logging configuration by default.
+
+`config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
+in one of the default locations under the name `config.json`, and edit (at least) your `token`.
