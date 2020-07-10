@@ -167,6 +167,9 @@ class PostEndpoint(EndpointOneShotCall):
             endpoint_url = "https://api.crowdtangle.com/post/{}"
         elif self.endpoint == "ct":
             endpoint_url = "https://api.crowdtangle.com/ctpost/{}"
+        else:
+            raise AttributeError("endpoint should be one of \"platform\" or \"ct\";"+
+                                 " received \"{}\" instead".format(self.endpoint))
         return endpoint_url
 
     @classmethod

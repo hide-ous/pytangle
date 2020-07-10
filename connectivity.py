@@ -64,7 +64,10 @@ def make_request(uri, params, max_retries=5):
                          "error url:", error_url)
 
             if error_http_status == 429:  # rate limit exceeded
-                # raise  # should be handled by ratelimit #it's actually not
+                # should be handled by ratelimit
+                # it's actually not
+                # FIXME: make it so that ratelimit handles this
+                # raise
                 time.sleep(30)
 
             elif error_code == 20:  # Unknown Parameter
@@ -140,13 +143,14 @@ class Paginator:
 
     def __fetch_next_response(self):
         # call CT
-        logger.debug("call params "+str(self.next_page_params))
+        logger.debug("call params " + str(self.next_page_params))
         response = self.request_fun(self.endpoint_url,
                                     self.next_page_params)
         self.response = response
 
         # update results
-        if not (response['result'][self.response_field]):
+        if ('result' not in response) or (self.response_field not in response['result']) or (
+                len(response['result'][self.response_field]) == 0):
             logger.debug('no results returned')
             self.next_page = None
             self.previous_page = None
@@ -196,7 +200,7 @@ class Paginator:
     def __is_spent(self):
         if -1 < self.total_count <= self.returned_count:  # returned all of the items requested
             return True
-        elif len(self.current_results)>0:  # not returned all cached results
+        elif len(self.current_results) > 0:  # not returned all cached results
             return False
         elif not self.has_next_page:  # has a next page to fetch
             return True
@@ -208,7 +212,7 @@ class Paginator:
         if not len(self.current_results):
             self.__fetch_next_response()
         if self.__is_spent():
-            #may have fetched no results
+            # may have fetched no results
             raise StopIteration
         self.returned_count += 1
 
