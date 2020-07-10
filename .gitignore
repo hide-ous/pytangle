@@ -131,4 +131,4 @@ dmypy.json
 # pycharm
 .idea/
 #project config
-pytangle/config.json
+config.json
