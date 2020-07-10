@@ -13,6 +13,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/hide-ous/pytangle/",
     packages=setuptools.find_packages(),
+    install_requires=[
+        "requests>=2.9.1",
+        "ratelimit>=2.2.1",
+        "python_dateutil>=2.8.1",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

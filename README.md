@@ -12,7 +12,15 @@ preferences. Copy `config_sample.json` into a file named `config.json` before
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
 
 ### Installation
-To install dependencies, run
+To download and install, run:
+
+```console
+git clone https://github.com/hide-ous/pytangle.git
+cd pytangle
+pip3 install . 
+```
+
+To install only the dependencies, run:
 
 ```pip3 install -r requirements.txt```
 
@@ -22,9 +30,10 @@ Python 3.3 and up. Tested on 3.7.
 ### Examples
 It is easy to use the API. Just create an API instance, and start querying way. If you have customized `config.py` the 
  API instance will automatically load your API token, otherwise you can assign explicitly via code. Rate limiting and 
- pagination are handled for you.    
-```
-from api import API
+ pagination are handled for you. 
+   
+```python
+from pytangle.api import API
 api = API()
 #use the following line instead if you do not want to set up a configuration file
 #api = API(token="YOUR_TOKEN") 
@@ -32,8 +41,8 @@ api = API()
 
 All query methods return an iterator, one result object (i.e. one post, account, ...) at a time. For example, to fetch 
 the lists linked to the current dashboard:  
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 # fetch all lists linked to the current dashboard
 for a_list in api.lists():
@@ -41,8 +50,8 @@ for a_list in api.lists():
 ```
 
 The same applies to other types of objects, like posts: 
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 
 # get the 5 top overperforming posts
@@ -53,8 +62,8 @@ for a_post in api.posts(count=5):
 If you want information about a specific post, you can query it via either its facebook id or its crowdtangle id, by
 specifying the `endpoint` (`platform` or `ct` respectively). For differences see 
 [the official wiki](https://github.com/CrowdTangle/API/wiki/Posts#get-postid).
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 
 # get information about a specific post
@@ -64,8 +73,8 @@ for a_post in api.post(id=post_id, endpoint='platform'):
 ```
 
 Get the leaderboard for the current dashboard:
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 
 # get the first 5 entries in the leaderboard for the current dashboard
@@ -74,8 +83,8 @@ for a_leaderboard in api.leaderboard(count=5):
 ```
 
 Get the top 5 posts sharing a link (like in the crowdtangle chrome extension):
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 
 # get the top 5 sharers of a link
@@ -85,19 +94,20 @@ for a_post in api.links(count=5, link=an_url):
 ```
 
 Get details about a specific account in a list:
-```
-from api import API
+
+```python
+from pytangle.api import API
 api = API()
 
 # get information on an account
-list_id = a_list['id']
+list_id = 12345 # the id of one of your lists
 for an_account in api.accounts_in_list(count=5, listId=list_id):
     print(an_account)
 ```
 
 Get all posts from a list in a specific date range:
-```
-from api import API
+```python
+from pytangle.api import API
 api = API()
 
 # get all posts from a list from Jan until June 2020
