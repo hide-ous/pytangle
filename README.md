@@ -12,15 +12,20 @@ preferences. Copy `config_sample.json` into a file named `config.json` before
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
 
 ### Installation
-To download and install, run:
+The quickest way to download and install is:
+
+```pip3 install git+https://github.com/hide-ous/pytangle.git```
+
+Otherwise:
 
 ```console
-git clone https://github.com/hide-ous/pytangle.git
+git clone https://github.com/hide-ous/pytangle.git 
 cd pytangle
 pip3 install . 
 ```
 
-To install only the dependencies, run:
+To install only the dependencies, and use the library without installing,
+run:
 
 ```pip3 install -r requirements.txt```
 
