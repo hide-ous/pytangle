@@ -3,10 +3,10 @@ A python wrapper for crowdtangle
 
 ### In this repository
 - `pytangle.py`: main file with examples
-- `api.py`: object oriented and functional interfaces to the api
-- `connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
-- `endpoints.py`: objects detailing the crowdtangle API endpoints 
-- `utils.py`: common utility procedures
+- `pytangle/api.py`: object oriented and functional interfaces to the api
+- `pytangle/connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
+- `pytangle/endpoints.py`: objects detailing the crowdtangle API endpoints 
+- `pytangle/utils.py`: common utility procedures
 - `config_sample.json`: sample configuration file. `pytangle` uses this file to load your API token and to set logging 
 preferences. Copy `config_sample.json` into a file named `config.json` before 
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
@@ -14,11 +14,13 @@ customizing it. You most likely want to edit at least your API token. See the la
 ### Installation
 The quickest way to download and install is:
 
-```pip3 install git+https://github.com/hide-ous/pytangle.git```
+```bash
+pip3 install git+https://github.com/hide-ous/pytangle.git
+```
 
-Otherwise:
+Otherwise, download the code, move into the directory, and install from the local file, e.g.:
 
-```console
+```bash
 git clone https://github.com/hide-ous/pytangle.git 
 cd pytangle
 pip3 install . 
@@ -27,7 +29,9 @@ pip3 install .
 To install only the dependencies, and use the library without installing,
 run:
 
-```pip3 install -r requirements.txt```
+```bash
+pip3 install -r requirements.txt
+```
 
 Python 3.3 and up. Tested on 3.7.
 
