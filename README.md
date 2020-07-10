@@ -115,3 +115,15 @@ for n, a_post in enumerate(api.posts(listIds=list_ids,
         print(n)
 ```
 ### Configuring `pytangle`
+
+The configuration file `config.py` is a simple json file, containing two main sections:
+- `token`: is the API token associated with a dashboard within crowdtangle. If you have access to
+ the API, you can locate your API token via your dashboard under Settings > API Access.  
+- `logging`: is a dictionary of items determining how pytangle should log. It follows the conventions
+in `logging.dictConfig`: for explanations on the various options see the 
+[official reference](https://docs.python.org/3/library/logging.config.html#dictionary-schema-details).
+
+The default locations for `config.py` are at the root of the presently used module, or in the user's home. 
+An API instance will attempt to load the token from the configuration file, if a token is not explicitly passed.
+`pytangle.py` shows an example of how to initialize loggers using the configuration in `config.py`. However, the API
+will not load the logging configuration by default.
