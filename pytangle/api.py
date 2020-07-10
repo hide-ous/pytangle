@@ -2,10 +2,10 @@ import json
 import os
 import sys
 
-from connectivity import Paginator
-from endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, LinksEndpoint, \
+from pytangle.connectivity import Paginator
+from pytangle.endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, LinksEndpoint, \
     AccountsEndpoint
-from utils import remove_null_values_from_dict
+from pytangle.utils import remove_null_values_from_dict
 import logging
 
 CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),

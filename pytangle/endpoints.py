@@ -1,7 +1,7 @@
 from abc import ABC
 from copy import deepcopy
 
-from connectivity import make_request_1_every_10s, make_request_1_every_30s, make_request
+from pytangle.connectivity import make_request_1_every_10s, make_request_1_every_30s, make_request
 
 
 class Endpoint(ABC):
