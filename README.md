@@ -7,13 +7,13 @@ A python wrapper for crowdtangle
 - `pytangle/connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
 - `pytangle/endpoints.py`: objects detailing the crowdtangle API endpoints 
 - `pytangle/utils.py`: common utility procedures
-- `config_sample.json`: sample configuration file. `pytangle` uses this file to load your API token and to set logging 
-preferences. Copy `config_sample.json` into a file named `config.json` before 
+- `pytangle_config_sample.json`: sample configuration file. `pytangle` uses this file to load your API token and to set logging 
+preferences. Copy `pytangle_config_sample.json` into a file named `pytangle_config.json` before 
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
 
 ### Quickstart
 1. Install the package: `pip3 install git+https://github.com/hide-ous/pytangle.git`
-2. Create a file named `config.json` in the folder from where you will call `pytangle`, and paste: 
+2. Create a file named `pytangle_config.json` in the folder from where you will call `pytangle`, and paste: 
     ```json
     {
       "token": "YOUR_CROWDTANGLE_TOKEN"
@@ -22,11 +22,12 @@ customizing it. You most likely want to edit at least your API token. See the la
 3. Check that everything works:
     ```python
     from pytangle.api import API
-    api = API()
-    from pytangle.api import API
-    # fetch all lists linked to the current dashboard
+    api = API() # or "api = API(token=YOUR_CROWDTANGLE_TOKEN)" 
+                # if you did not create pytangle_config.json
+   
+    # fetch lists in the current dashboard
     for a_list in api.lists():
-    print(a_list)
+       print(a_list)
     ```
 ### Installation
 The quickest way to download and install is:
@@ -152,14 +153,14 @@ for n, a_post in enumerate(api.posts(listIds=list_ids,
 ```
 ### Configuring `pytangle`
 
-The configuration file `config.json` is a simple json file, containing two main sections:
+The configuration file `pytangle_config.json` is a simple json file, containing two main sections:
 - `token`: is the API token associated with a dashboard within crowdtangle. If you have access to
  the API, you can locate your API token via your dashboard under Settings > API Access.  
 - `logging`: is a dictionary of items determining how pytangle should log. It follows the conventions
 in `logging.dictConfig`: for explanations on the various options see the 
 [official reference](https://docs.python.org/3/library/logging.config.html#dictionary-schema-details).
 
-The default locations for `config.json` are:
+The default locations for `pytangle_config.json` are:
  - at the root of the presently used module, or 
  - in the user's home.
   
@@ -167,5 +168,5 @@ An API instance will attempt to load the token from the configuration file, if a
 `pytangle.py` shows an example of how to initialize loggers using the configuration in `config.py`. However, the API
 will not load the logging configuration by default.
 
-`config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
-in one of the default locations under the name `config.json`, and edit (at least) your `token`.
+`pytangle_config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
+in one of the default locations under the name `pytangle_config.json`, and edit (at least) your `token`.

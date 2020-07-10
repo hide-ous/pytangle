@@ -8,9 +8,9 @@ from pytangle.endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, Lead
 from pytangle.utils import remove_null_values_from_dict
 import logging
 
-CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__file__), "config.json"),
-                         os.path.join(os.path.expanduser('~'), "config.json"),
-                         os.path.join(os.path.abspath('.'), "config.json"),
+CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__file__), "pytangle_config.json"),
+                         os.path.join(os.path.expanduser('~'), "pytangle_config.json"),
+                         os.path.join(os.path.abspath('.'), "pytangle_config.json"),
                          ]
 logger = logging.getLogger()
 
