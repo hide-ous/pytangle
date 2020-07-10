@@ -30,9 +30,9 @@ if __name__ == '__main__':
     for a_list in api.lists():
         print(a_list)
 
-    # # get the 5 top overperforming posts
-    # for a_post in api.posts(count=5):
-    #     print(a_post)
+    # get the 5 top overperforming posts
+    for a_post in api.posts(count=5):
+        print(a_post)
 
     # get information about a specific post
     post_id = "1515871602074952_5362226790772728"
@@ -53,18 +53,18 @@ if __name__ == '__main__':
     for an_account in api.accounts_in_list(count=5, listId=list_id):
         print(an_account)
 
-    # # get all posts in the dashboard from Jan until June 2020
-    # list_ids = [a_list['id']]
-    # for n, a_post in enumerate(api.posts(listIds=list_ids,
-    #                                      count=-1,
-    #                                      batchSize=100,
-    #                                      sortBy='date',
-    #                                      startDate='2020-01-01',
-    #                                      endDate='2020-06-30',
-    #                                      timeframe=None,
-    #                                      )):
-    #     # do something with the post
-    #     if not n % 1000:
-    #         print(n)
-    #         break
-    # print(n)
+    # get all posts in the dashboard from Jan until June 2020
+    list_ids = [a_list['id']]
+    for n, a_post in enumerate(api.posts(listIds=list_ids,
+                                         count=-1,
+                                         batchSize=100,
+                                         sortBy='date',
+                                         startDate='2020-01-01',
+                                         endDate='2020-06-30',
+                                         timeframe=None,
+                                         )):
+        # do something with the post
+        if not n % 1000:
+            print(n)
+            break
+    print(n)
