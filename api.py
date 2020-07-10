@@ -16,11 +16,11 @@ logger = logging.getLogger()
 
 
 class API:
+    """Wrapper for calling crowdtangle endpoints. All methods return iterators over the objects returned by
+        crowdtangle. Rate limiting, deduplication, and pagination are handled automatically."""
     def __init__(self, token=None):
         """
-        Wrapper for calling crowdtangle endpoints. All methods return iterators over the objects returned by
-        crowdtangle. Rate limiting, deduplication, and pagination are handled automatically.
-        Before using the methods in this class, first instantiate it by passing a token associated with your dashboard.
+        Sets the token for the current API instance.
         If no token is provided, it will try to load it from config.py, if found in  CONFIG_FILE_LOCATIONS
 
         Args:
