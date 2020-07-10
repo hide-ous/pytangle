@@ -103,6 +103,15 @@ class API:
         weightShare : ( 0-10, default 0 )
         weightView : ( 0-10, default 0 )
         weightWow : ( 0-10, default 0 )
+
+        Example use:
+        from api import API
+        api = API()
+
+        # get the 5 top overperforming posts
+        for a_post in api.posts(count=5):
+            print(a_post)
+
         """
         params = dict(
             token=self._token,
@@ -148,6 +157,16 @@ class API:
         includeHistory : (None or True, default None (does not include)) Includes timestep data for growth of each post
                     returned.
         endpoint : ( platform, ct, default ct ) which API endpoint to query.
+
+        Example use:
+        from api import API
+        api = API()
+
+        # get information about a specific post
+        post_id = "1515871602074952_5362226790772728"
+        for a_post in api.post(id=post_id, endpoint='platform'):
+            print(a_post)
+
        """
         params = dict(id=id,
                       token=self._token,
@@ -234,6 +253,24 @@ class API:
                     supply information about verified accounts.
         language : ( None, i.e. all languages ) Exceptions: Some languages require more than two characters: Chinese
                     (Simplified) is zh-CN and Chinese (Traditional) is zh-TW.
+
+        Example use:
+
+        from api import API
+        api = API()
+        list_ids = [12345, ] # your lists
+        search_term = "pytangle"
+        for n, a_post in enumerate(api.posts(inListIds=list_ids,
+                                             count=-1,
+                                             batchSize=100,
+                                             sortBy='date',
+                                             startDate='2020-01-01',
+                                             endDate='2020-06-30',
+                                             searchTerm=search_term,
+                                             )):
+            # do something with the post
+            if not n % 1000:
+                print(n)
         """
         params = dict(
             token=self._token,
@@ -295,6 +332,14 @@ class API:
         orderBy : ( default desc ) the order of the sort.
         sortBy : ( total_interactions, interaction_rate, default total_interactions ) The method by which the
                     accountStatistics are sorted.
+
+        Example use:
+        from api import API
+        api = API()
+
+        # get the first 5 entries in the leaderboard for the current dashboard
+        for a_leaderboard in api.leaderboard(count=5):
+            print(a_leaderboard)
         """
         params = dict(
             token=self._token,
@@ -315,6 +360,14 @@ class API:
     ):
         """
         Retrieve the lists, saved searches and saved post lists of the dashboard associated with the token sent in.
+
+        Example use:
+        from api import API
+        api = API()
+        # fetch all lists linked to the current dashboard
+        for a_list in api.lists():
+            print(a_list)
+
         """
         params = dict(
             token=self._token,
@@ -354,6 +407,16 @@ class API:
                     link. It will look beyond the count requested to summarize across the time searched. Requires a value
                     for startDate.
         platforms : ( facebook,instagram, default None i.e. all platforms ) The platforms from which to retrieve links. This value can be comma-separated.
+
+        Example use:
+        from api import API
+        api = API()
+
+        # get the top 5 sharers of a link
+        an_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        for a_post in api.links(count=5, link=an_url):
+            print(a_post)
+
         """
         params = dict(
             token=self._token,
@@ -385,6 +448,17 @@ class API:
         batchSize : ( 1-100, default 100 ) Number of accounts to return at most per call to the endpoint. Between 1-100.
         offset : ( >= 0, default 0 ) The number of accounts to offset (generally used for pagination). Pagination links will also
                     be provided in the response.
+
+        Example use:
+
+        from api import API
+        api = API()
+
+        # get information on an account
+        list_id = a_list['id']
+        for an_account in api.accounts_in_list(count=5, listId=list_id):
+            print(an_account)
+
         """
         params = dict(
             token=self._token,
