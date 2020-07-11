@@ -42,11 +42,11 @@ def make_request(uri, params, max_retries=5):
             response.raise_for_status()
             return json.loads(response.content.decode('utf-8'))
         except requests.exceptions.HTTPError as errh:
-            logger.error("Http Error:", errh)
+            logger.error(errh)
             error_details = defaultdict(lambda: None)
             try:
                 error_details.update(json.loads(errh.response.content.decode()))
-            except AttributeError as e:
+            except AttributeError:
                 pass
             except JSONDecodeError as e:
                 logger.debug(e)
@@ -57,11 +57,15 @@ def make_request(uri, params, max_retries=5):
             error_code = error_details['code']
             error_url = error_details['url']
 
-            logger.debug("error status (HTTP):", error_http_status,
-                         "error status (CrowdTangle):", error_ct_status,
-                         "error code:", error_code,
-                         "error message:", error_message,
-                         "error url:", error_url)
+            logger.debug(("error status (HTTP):{}\n"+
+                         "error status (CrowdTangle):{}\n"+
+                         "error code:{}\n"+
+                         "error message:{}\n"+
+                         "error url:{}").format(error_http_status,
+                                                error_ct_status,
+                                                error_code,
+                                                error_message,
+                                                error_url))
 
             if error_http_status == 429:  # rate limit exceeded
                 # should be handled by ratelimit
@@ -71,20 +75,27 @@ def make_request(uri, params, max_retries=5):
                 time.sleep(30)
 
             elif error_code == 20:  # Unknown Parameter
-                exit(-1)
+                logger.error("Crowdtangle error code 20: Unknown Parameter")
+                time.sleep(60)
             elif error_code == 21:  # Illegal Parameter Value
-                exit(-1)
+                logger.error("Crowdtangle error code 21: Illegal Parameter Value")
+                time.sleep(60)
             elif error_code == 22:  # Missing Parameter
-                exit(-1)
+                logger.error("Crowdtangle error code 22: Missing Parameter")
+                time.sleep(60)
             elif error_code == 30:  # Missing Token
-                exit(-1)
+                logger.error("Crowdtangle error code 30: Missing Token")
+                time.sleep(60)
             elif error_code == 31:  # Invalid Token
-                exit(-1)
+                logger.error("Crowdtangle error code 31: Invalid Token")
+                time.sleep(60)
             elif error_code == 40:  # Does Not Exist
-                exit(-1)
+                logger.error("Crowdtangle error code 40: Does Not Exist")
+                time.sleep(60)
             elif error_code == 41:  # Not Allowed
-                exit(-1)
-            elif error_http_status / 100 == 4:  # 4XX error other than 429
+                logger.error("Crowdtangle error code 41: Not Allowed")
+                time.sleep(60)
+            elif error_http_status / 100 == 4:  # 4XX other client side error
                 time.sleep(60)
                 raise errh
             elif error_http_status / 100 == 5:  # 5XX error
@@ -95,23 +106,24 @@ def make_request(uri, params, max_retries=5):
             last_exception = errh
             current_tries += 1
         except requests.exceptions.ConnectionError as errc:
-            logger.error("Error Connecting:", errc, "\nsleeping")
+            logger.error("Error Connecting:{}".format(errc) + "\nsleeping")
             last_exception = errc
             time.sleep(60)
             current_tries += 1
         except requests.exceptions.Timeout as errt:
-            logger.error("Timeout Error:", errt, "\nsleeping")
+            logger.error("Timeout Error:{}".format(errt) + "\nsleeping")
             last_exception = errt
             time.sleep(60)
             current_tries += 1
         except requests.exceptions.RequestException as err:
-            logger.error("Unspecified RequestException", err)
+            logger.error("Unspecified RequestException".format(err))
             raise err
     # if all retries fail, raise the last exception
     raise last_exception
 
 
 class Paginator:
+
     def __init__(self, endpoint, max_cached_ids=100):
         self.endpoint = endpoint
         self.cached_ids = deque(maxlen=max_cached_ids)
