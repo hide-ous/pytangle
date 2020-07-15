@@ -64,7 +64,8 @@ if __name__ == '__main__':
                                          timeframe=None,
                                          )):
         # do something with the post
-        if not (n+1) % 300:
-            print(n)
+        if not (n+1) % 1000:
+            print(n+1)
+            # stopping at 1000 posts, otherwise it may take some time...
             break
     print(n)

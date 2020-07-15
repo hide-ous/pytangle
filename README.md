@@ -51,7 +51,7 @@ run:
 pip3 install -r requirements.txt
 ```
 
-Python 3.3 and up. Tested on 3.7.
+Python 3.5 and up. Tested on 3.7.
 
 
 ### Examples
@@ -132,13 +132,13 @@ for an_account in api.accounts_in_list(count=5, listId=list_id):
     print(an_account)
 ```
 
-Get all posts from a list in a specific date range:
+Get all posts from a list in a specific date range (you can find which lists are in your dashboard via `api.lists()`:
 ```python
 from pytangle.api import API
 api = API()
 
 # get all posts from a list from Jan until June 2020
-list_ids = [12345, ] # your lists
+list_ids = [12345, ] # ids of the lists of interest
 for n, a_post in enumerate(api.posts(listIds=list_ids,
                                      count=-1,
                                      batchSize=100,
