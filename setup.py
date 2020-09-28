@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pytangle-hide_ous",
+    name="pytangle",
     version="0.0.1",
     author="Mattia Samory",
     author_email="mattia.samory@gmail.com",

@@ -33,7 +33,7 @@ customizing it. You most likely want to edit at least your API token. See the la
 The quickest way to download and install is:
 
 ```bash
-pip3 install git+https://github.com/hide-ous/pytangle.git
+pip3 install pytangle
 ```
 
 Otherwise, download the code, move into the directory, and install from the local file, e.g.:
