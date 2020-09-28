@@ -12,6 +12,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hide-ous/pytangle/",
+    download_url="https://github.com/hide-ous/pytangle/archive/v0.0.1.tar.gz",
+    keywords=['crowdtangle', 'api', 'wrapper'],
     packages=setuptools.find_packages(),
     install_requires=[
         "requests>=2.9.1",
