@@ -1,28 +1,8 @@
-import json
-import os
-import sys
+# Copyright (C) 2020 Mattia Samory
 
 from pytangle.api import API, CONFIG_FILE_LOCATIONS
-import logging.config
 
 if __name__ == '__main__':
-
-    config_ = dict()
-    for config_file_location in CONFIG_FILE_LOCATIONS:
-        if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
-            with open(config_file_location) as f:
-                config_ = json.load(f)
-
-    # Set up proper logging. This one disables the previously configured loggers.
-    if "logging" in config_:
-        logging.config.dictConfig(config_["logging"])
-    else:
-        logging.basicConfig(stream=sys.stdout,
-                            format='%(asctime)s %(levelname)-8s %(message)s',
-                            level=logging.INFO,
-                            datefmt='%Y-%m-%d %H:%M:%S'
-                            )
-    logger = logging.getLogger()
 
     api = API()
 
@@ -45,8 +25,9 @@ if __name__ == '__main__':
 
     # get the top 5 sharers of a link
     an_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    for a_post in api.links(count=5, link=an_url):
+    for a_post in api.links(count=5, link=an_url, platforms='instagram'):
         print(a_post)
+    exit()
 
     # get information on an account
     list_id = a_list['id']
