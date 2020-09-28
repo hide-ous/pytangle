@@ -1,41 +1,68 @@
+# Copyright (C) 2020 Mattia Samory
+
 import json
 import os
 import sys
 
 from pytangle.connectivity import Paginator
-from pytangle.endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, LinksEndpoint, \
+from pytangle.endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, \
+    LinksEndpoint, \
     AccountsEndpoint
 from pytangle.utils import remove_null_values_from_dict
 import logging
-
+import logging.config
 CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__file__), "pytangle_config.json"),
                          os.path.join(os.path.expanduser('~'), "pytangle_config.json"),
                          os.path.join(os.path.abspath('.'), "pytangle_config.json"),
                          ]
+
 logger = logging.getLogger()
+
+
+def read_config(config_file_locations):
+    config_ = dict()
+    for config_file_location in config_file_locations:
+        if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
+            with open(config_file_location) as f:
+                config_ = json.load(f)
+    return config_
+
+
+def setup_logger(config_):
+    global logger
+    if "logging" in config_:
+        logging.config.dictConfig(config_["logging"])
+        logger = logging.getLogger()
+
+
+def read_token(config_):
+    if 'token' in config_:
+        return config_['token']
+    else:
+        return None
 
 
 class API:
     """Wrapper for calling crowdtangle endpoints. All methods return iterators over the objects returned by
-        crowdtangle. Rate limiting, deduplication, and pagination are handled automatically."""
-    def __init__(self, token=None):
+    crowdtangle. Rate limiting, deduplication, and pagination are handled automatically."""
+
+    def __init__(self, token=None, config_file_locations=CONFIG_FILE_LOCATIONS):
         """
         Sets the token for the current API instance.
         If no token is provided, it will try to load it from config.py, if found in  CONFIG_FILE_LOCATIONS
 
         Args:
             token: (str, default None) A valid crowdtangle token
+            config_file_locations: (list of str, default CONFIG_FILE_LOCATIONS) possible locations for the
+                    configuration file
         """
-        if token is None:
-            # try to get the token from the configuration files
-            for config_file_location in CONFIG_FILE_LOCATIONS:
-                if os.path.exists(config_file_location) and os.path.isfile(config_file_location):
-                    with open(config_file_location) as f:
-                        token = json.load(f)['token']
+        config_ = read_config(config_file_locations)
+        setup_logger(config_)
+        token = read_token(config_)
 
         if token is None:
             raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: " + \
-                             str(CONFIG_FILE_LOCATIONS))
+                             str(config_file_locations))
         self._token = token
 
     def posts(

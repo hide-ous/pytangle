@@ -1,3 +1,5 @@
+# Copyright (C) 2020 Mattia Samory
+
 import time
 import json
 from collections import defaultdict, deque

@@ -1,3 +1,5 @@
+# Copyright (C) 2020 Mattia Samory
+
 from abc import ABC
 from copy import deepcopy
 

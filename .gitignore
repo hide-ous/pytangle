@@ -130,5 +130,6 @@ dmypy.json
 
 # pycharm
 .idea/
+
 #project config
 pytangle_config.json
