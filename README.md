@@ -12,23 +12,23 @@ preferences. Copy `pytangle_config_sample.json` into a file named `pytangle_conf
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
 
 ### Quickstart
-1. Install the package: `pip3 install git+https://github.com/hide-ous/pytangle.git`
+1. Install the package: `pip3 install pytangle`
 2. Create a file named `pytangle_config.json` in the folder from where you will call `pytangle`, and paste: 
-    ```json
-    {
-      "token": "YOUR_CROWDTANGLE_TOKEN"
-    }
-    ```
+```json
+{
+  "token": "YOUR_CROWDTANGLE_TOKEN"
+}
+```
 3. Check that everything works:
-    ```python
-    from pytangle.api import API
-    api = API() # or "api = API(token=YOUR_CROWDTANGLE_TOKEN)" 
-                # if you did not create pytangle_config.json
-   
-    # fetch lists in the current dashboard
-    for a_list in api.lists():
-       print(a_list)
-    ```
+```python
+from pytangle.api import API
+api = API() # or "api = API(token=YOUR_CROWDTANGLE_TOKEN)" 
+            # if you did not create pytangle_config.json
+
+# fetch lists in the current dashboard
+for a_list in api.lists():
+   print(a_list)
+```
 ### Installation
 The quickest way to download and install is:
 
