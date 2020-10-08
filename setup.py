@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pytangle",
-    version="0.0.1",
+    version="0.0.2",
     author="Mattia Samory",
     author_email="mattia.samory@gmail.com",
     description="A python wrapper for crowdtangle API endpoints",

@@ -170,3 +170,8 @@ will not load the logging configuration by default.
 
 `pytangle_config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
 in one of the default locations under the name `pytangle_config.json`, and edit (at least) your `token`.
+
+### Changelog
+* 0.0.2 
+    * bugfix: pass token via code instead of configuration file 
+* 0.0.1 initial release
