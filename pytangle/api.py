@@ -58,7 +58,8 @@ class API:
         """
         config_ = read_config(config_file_locations)
         setup_logger(config_)
-        token = read_token(config_)
+        if token is None:
+            token = read_token(config_)
 
         if token is None:
             raise ValueError("Pass a token value, or set it in the configuration file. None found. Looked here: " + \
