@@ -55,7 +55,7 @@ Python 3.5 and up. Tested on 3.7.
 
 
 ### Examples
-It is easy to use the API. Just create an API instance, and start querying way. If you have customized `pytangle_config.py` the 
+It is easy to use the API. Just create an API instance, and start querying way. If you have customized `pytangle_config.json` the 
  API instance will automatically load your API token, otherwise you can assign explicitly via code. Rate limiting and 
  pagination are handled for you. 
    
@@ -165,7 +165,7 @@ The default locations for `pytangle_config.json` are:
  - in the user's home.
   
 An API instance will attempt to load the token from the configuration file, if a token is not explicitly passed.
-`pytangle.py` shows an example of how to initialize loggers using the configuration in `pytangle_config.py`. However, the API
+`pytangle.py` shows an example of how to initialize loggers using the configuration in `pytangle_config.json`. However, the API
 will not load the logging configuration by default.
 
 `pytangle_config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
