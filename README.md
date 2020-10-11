@@ -53,6 +53,17 @@ pip3 install -r requirements.txt
 
 Python 3.5 and up. Tested on 3.7.
 
+### Crowdtangle vs Pytangle Endpoints
+
+| CrowdTangle             | Pytangle          |
+|-------------------------|-------------------|
+| /post/:id               | post              |
+| /posts                  | posts             |
+| /posts/search           | search            |
+| /leaderboard            | leaderboard       |
+| /links                  | links             |
+| /lists                  | lists             |
+| /lists/:listId/accounts | accounts_in_lists |
 
 ### Examples
 It is easy to use the API. Just create an API instance, and start querying way. If you have customized `pytangle_config.json` the 
@@ -151,6 +162,11 @@ for n, a_post in enumerate(api.posts(listIds=list_ids,
     if not n % 1000:
         print(n)
 ```
+### Defaults
+
+Most defaults are set in alignment with Crowtangle defaults (for example, `sortBy` in `posts` is set to `overperforming` as in CT). 
+Note that the `post`endpoint has an `endpoint` parameter whose default is `ct` and *not* `platform`. Posts with CT IDs are queried via `GET http://api.crowdtangle.com/ctpost/:id`. [CT IDs may change soon](https://help.crowdtangle.com/en/articles/4450296-api-changes-post-ids).
+
 ### Configuring `pytangle`
 
 The configuration file `pytangle_config.json` is a simple json file, containing two main sections:
