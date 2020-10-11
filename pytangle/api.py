@@ -18,7 +18,7 @@ CONFIG_FILE_LOCATIONS = [os.path.join(os.path.dirname(sys.modules[__name__].__fi
 
 logger = logging.getLogger()
 
-# why not move this entire part to utils?
+
 def read_config(config_file_locations):
     config_ = dict()
     for config_file_location in config_file_locations:
