@@ -10,6 +10,7 @@ from sys import exit
 from dateutil.parser import parse as date_parse
 import requests
 from ratelimit import limits, sleep_and_retry, RateLimitException
+from pytangle.utils import read_config, read_max_retries, read_wait_time
 
 import logging
 
@@ -19,18 +20,21 @@ ONE_SECOND = 1
 ONE_MINUTE = 60
 TEN_SECONDS = 10
 THIRTY_SECONDS = 30
+MAX_RETRIES = read_max_retries(read_config()) if read_max_retries(read_config()) else 5 
+
+
 
 
 @sleep_and_retry
 @limits(calls=1, period=TEN_SECONDS)
 def make_request_1_every_10s(uri, params, max_retries=5):
-    return make_request(uri, params, max_retries=5)
+    return make_request(uri, params, max_retries=MAX_RETRIES)
 
 
 @sleep_and_retry
 @limits(calls=1, period=THIRTY_SECONDS)
 def make_request_1_every_30s(uri, params, max_retries=5):
-    return make_request(uri, params, max_retries=5)
+    return make_request(uri, params, max_retries=MAX_RETRIES)
 
 
 # TODO: add config for max_retries
