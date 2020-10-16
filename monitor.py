@@ -1,6 +1,8 @@
 # Copyright (C) 2020 Mattia Samory
 import json
 import time
+from datetime import datetime
+
 import schedule
 import optparse
 
@@ -37,14 +39,18 @@ class PyTangleScraper(object):
             print("done at ", time.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def run(self):
+        print('in run')
         job = schedule.every(self.every).__getattribute__(self.timeunit)
         if self.at:
             job=job.at(self.at)
         job.do(self.scrape_once)
         while True:
-            'next run at', schedule.next_run()
+            print('next run at', schedule.next_run())
             schedule.run_pending()
-            time.sleep(1)  # wait one second
+            # time.sleep(1)  # wait one second
+            sleep_time=(schedule.next_run()-datetime.now()).total_seconds()
+            print('sleeping {} seconds'.format(sleep_time))
+            time.sleep(sleep_time)
 
     @classmethod
     def __timeunit_to_first_period(cls, timeunit, every):
