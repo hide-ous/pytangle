@@ -39,7 +39,8 @@ class PyTangleScraper(object):
     def run(self):
         job = schedule.every(self.every).__getattribute__(self.timeunit)
         if self.at:
-            job.at(self.at).do(self.scrape_once)
+            job=job.at(self.at)
+        job.do(self.scrape_once)
         while True:
             'next run at', schedule.next_run()
             schedule.run_pending()
@@ -70,10 +71,10 @@ def main():
                       callback=split_list, help="comma-separated ids of the list to scrape, e.g. -l 123,345")
 
     parser.add_option("-q", "--quiet",
-                      action="store_true", dest="quiet", default=True,
+                      action="store_true", dest="quiet", default=False,
                       help="don't print status messages to stdout")
 
-    parser.add_option("-e", "--every", dest="every", default=1,
+    parser.add_option("-e", "--every", dest="every", default=1, type='int',
                       help="""(int) how many TIMEUNITs to skip.\n
                       Syntax:scrape EVERY TIMEUNIT AT, e.g. every {10} {days} at {10:30}""")
 
@@ -113,12 +114,12 @@ def main():
     (options, args) = parser.parse_args()
 
     PyTangleScraper(api_key=options.api_key,
-                    config=options.config,
+                    config=options.config_path,
                     lists=options.lists,
-                    store_path=options.store_path,
+                    store_path=options.filename,
                     quiet=options.quiet,
                     every=options.every,
-                    timeunit=options.timeunit,
+                    timeunit=options.time_unit,
                     at=options.at).run()
 
 
