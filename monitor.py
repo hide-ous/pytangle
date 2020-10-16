@@ -40,7 +40,6 @@ class PyTangleScraper(object):
             logger.debug("done at " + time.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def run(self):
-        logger.debug('in run')
         job = schedule.every(self.every).__getattribute__(self.timeunit)
         if self.at:
             job = job.at(self.at)
