@@ -11,6 +11,7 @@ from pytangle.api import API, CONFIG_FILE_LOCATIONS
 
 logger = logging.getLogger()
 
+
 class PyTangleScraper(object):
     def __init__(self, api_key, config, lists, store_path, quiet, every, timeunit, at):
         self.config = config
@@ -21,23 +22,27 @@ class PyTangleScraper(object):
         self.lists = lists
         self.quiet = quiet
         self.store_path = store_path
-        self.timestamp_last_post = time.strftime('%Y-%m-%dT%H:%M:%S') #current time
+
+        self.timestamp_last_post = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')  # current time
         self.api = API(token=self.api_key, config_file_locations=self.config)
         if not self.quiet:
             logger.setLevel(logging.DEBUG)
 
     def scrape_once(self):
+        most_recent_timestamp = self.timestamp_last_post
         with open(self.store_path, 'a+') as out_file:
-            most_recent_timestamp = self.timestamp_last_post
 
             for post in self.api.posts(listIds=self.lists,
                                        sortBy='date', count=-1, startDate=self.timestamp_last_post,
-                                       endDate=time.strftime('%Y-%m-%dT%H:%M:%S')):
+                                       endDate=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')):
                 out_file.write(json.dumps(post) + '\n')
-                most_recent_timestamp = max(most_recent_timestamp, post['date'])
-            self.timestamp_last_post = most_recent_timestamp
+                post_date = post['date']
+                if type(post_date) == list: #FIXME: sometimes the returned dict wraps parameters into lists
+                    post_date = post_date[0]
+                most_recent_timestamp = max(most_recent_timestamp, post_date)
+        self.timestamp_last_post = most_recent_timestamp
         if not self.quiet:
-            logger.debug("done at " + time.strftime('%Y-%m-%dT%H:%M:%S'))
+            logger.debug("done at " + datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
 
     def run(self):
         job = schedule.every(self.every).__getattribute__(self.timeunit)
@@ -48,7 +53,7 @@ class PyTangleScraper(object):
             logger.debug('next run at ' + str(schedule.next_run()))
             schedule.run_pending()
             sleep_time = (schedule.next_run() - datetime.now()).total_seconds()
-            logger.debug('sleeping {} seconds'.format(sleep_time))
+            logger.debug('sleeping for {} seconds'.format(sleep_time))
             time.sleep(sleep_time)
 
 
