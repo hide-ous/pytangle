@@ -1,5 +1,6 @@
 # Copyright (C) 2020 Mattia Samory
 import json
+import logging
 import time
 from datetime import datetime
 
@@ -8,6 +9,7 @@ import optparse
 
 from pytangle.api import API, CONFIG_FILE_LOCATIONS
 
+logger = logging.getLogger()
 
 class PyTangleScraper(object):
     def __init__(self, api_key, config, lists, store_path, quiet, every, timeunit, at):
@@ -19,60 +21,48 @@ class PyTangleScraper(object):
         self.lists = lists
         self.quiet = quiet
         self.store_path = store_path
-        self.timestamp_last_post = None
+        self.timestamp_last_post = time.strftime('%Y-%m-%dT%H:%M:%S') #current time
         self.api = API(token=self.api_key, config_file_locations=self.config)
+        if not self.quiet:
+            logger.setLevel(logging.DEBUG)
 
     def scrape_once(self):
         with open(self.store_path, 'a+') as out_file:
-            most_recent_timestamp = None
-            period = None
-            if not self.timestamp_last_post:  # first run
-                period = PyTangleScraper.__timeunit_to_first_period(self.timeunit, self.every)
+            most_recent_timestamp = self.timestamp_last_post
 
-            for post in self.api.posts(listIds=self.lists, timeframe=period,
+            for post in self.api.posts(listIds=self.lists,
                                        sortBy='date', count=-1, startDate=self.timestamp_last_post,
                                        endDate=time.strftime('%Y-%m-%dT%H:%M:%S')):
                 out_file.write(json.dumps(post) + '\n')
                 most_recent_timestamp = max(most_recent_timestamp, post['date'])
             self.timestamp_last_post = most_recent_timestamp
         if not self.quiet:
-            print("done at ", time.strftime('%Y-%m-%dT%H:%M:%S'))
+            logger.debug("done at " + time.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def run(self):
-        print('in run')
+        logger.debug('in run')
         job = schedule.every(self.every).__getattribute__(self.timeunit)
         if self.at:
-            job=job.at(self.at)
+            job = job.at(self.at)
         job.do(self.scrape_once)
         while True:
-            print('next run at', schedule.next_run())
+            logger.debug('next run at ' + str(schedule.next_run()))
             schedule.run_pending()
-            # time.sleep(1)  # wait one second
-            sleep_time=(schedule.next_run()-datetime.now()).total_seconds()
-            print('sleeping {} seconds'.format(sleep_time))
+            sleep_time = (schedule.next_run() - datetime.now()).total_seconds()
+            logger.debug('sleeping {} seconds'.format(sleep_time))
             time.sleep(sleep_time)
-
-    @classmethod
-    def __timeunit_to_first_period(cls, timeunit, every):
-        to_return = timeunit.upper().rstrip()
-        if to_return.endswith('S'):
-            to_return = to_return[:-1]
-        if to_return not in {"SECOND", "MINUTE", "HOUR", "DAY", "WEEK"}:
-            to_return = 'WEEK'  # TODO: crude
-        if every:
-            to_return = "{} {}".format(every, to_return)
-        return to_return
 
 
 def main():
     usage = "example usage: monitor.py --every 30 --timeunit minutes --key APIKEY --file log.njson"
     parser = optparse.OptionParser(usage)
     parser.add_option("-f", "--file", dest="filename", default='pytangle_{}.njson'.format(
-        time.strftime('%Y-%m-%dT%H:%M:%S')),
+        time.strftime('%Y%m%dT%H.%M.%S')),
                       help="store to FILE", metavar="FILE")
 
     def split_list(option, value):
         setattr(parser.values, option.dest, value.split(','))
+
     parser.add_option("-l", "--lists", dest="lists", default=None, action='callback',
                       callback=split_list, help="comma-separated ids of the list to scrape, e.g. -l 123,345")
 
