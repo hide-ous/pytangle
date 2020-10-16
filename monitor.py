@@ -39,7 +39,7 @@ class PyTangleScraper(object):
                 post_date = post['date']
                 if type(post_date) == list: #FIXME: sometimes the returned dict wraps parameters into lists
                     post_date = post_date[0]
-                most_recent_timestamp = max(most_recent_timestamp, post_date)
+                most_recent_timestamp = max(most_recent_timestamp, post_date) #FIXME: does not get updated
         self.timestamp_last_post = most_recent_timestamp
         if not self.quiet:
             logger.debug("done at " + datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
