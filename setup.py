@@ -20,6 +20,7 @@ setuptools.setup(
         "ratelimit>=2.2.1",
         "python_dateutil>=2.8.1",
     ],
+    extras_require={'examples': ["schedule>=0.6.0"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

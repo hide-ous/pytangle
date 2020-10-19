@@ -42,7 +42,7 @@ Most defaults are set in alignment with crowdtangle defaults (for example, by de
 The quickest way to download and install is:
 
 ```bash
-pip3 install pytangle
+pip3 install pytangle[examples]
 ```
 
 Otherwise, download the code, move into the directory, and install from the local file, e.g.:
