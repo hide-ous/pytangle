@@ -7,7 +7,8 @@ A python wrapper for crowdtangle
 ```python
 from pytangle.api import API
 
-# You can find YOUR_CROWDTANGLE_TOKEN in your dashboard under Settings > API Access
+# You can find YOUR_CROWDTANGLE_TOKEN in your 
+# dashboard under Settings > API Access
 api = API(token="YOUR_CROWDTANGLE_TOKEN")
             
 # fetch the lists in the current dashboard
