@@ -42,6 +42,13 @@ Most defaults are set in alignment with crowdtangle defaults (for example, by de
 The quickest way to download and install is:
 
 ```bash
+pip3 install pytangle
+```
+
+If you also want to run examples, e.g. 'monitor.py' which demonstrates the use of 
+`pytangle` for crawling crowdtangle in real time, then run:
+
+```bash
 pip3 install pytangle[examples]
 ```
 
@@ -178,7 +185,8 @@ will not load the logging configuration by default.
 
 `pytangle_config_sample.json` provides a reasonable starting point to customize `pytangle`: just copy the file 
 in one of the default locations under the name `pytangle_config.json`, and edit (at least) your `token`. Otherwise, you can set up a minimal `pytangle_config.json` by creting a new empty file and pasting:
-```{
+```json
+{
   "token": "YOUR_CROWDTANGLE_TOKEN"
 }
 ```
