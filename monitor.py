@@ -23,26 +23,31 @@ class PyTangleScraper(object):
         self.quiet = quiet
         self.store_path = store_path
 
-        self.timestamp_last_post = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')  # current time
+        self.timestamp_last_post = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')  # current time
         self.api = API(token=self.api_key, config_file_locations=self.config)
+        self.counter = 0
         if not self.quiet:
             logger.setLevel(logging.DEBUG)
 
     def scrape_once(self):
         most_recent_timestamp = self.timestamp_last_post
+        counter = 0
         with open(self.store_path, 'a+') as out_file:
 
             for post in self.api.posts(listIds=self.lists,
                                        sortBy='date', count=-1, startDate=self.timestamp_last_post,
-                                       endDate=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')):
+                                       endDate=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')):
                 out_file.write(json.dumps(post) + '\n')
                 post_date = post['date']
-                if type(post_date) == list: #FIXME: sometimes the returned dict wraps parameters into lists
+                if type(post_date) == list:
                     post_date = post_date[0]
-                most_recent_timestamp = max(most_recent_timestamp, post_date) #FIXME: does not get updated
+                most_recent_timestamp = max(most_recent_timestamp, post_date)
+                counter += 1
         self.timestamp_last_post = most_recent_timestamp
+        self.counter += counter
         if not self.quiet:
-            logger.debug("done at " + datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
+            logger.debug("returned {} posts ({} up to now)".format(counter, self.counter))
+            logger.debug("done at " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     def run(self):
         job = schedule.every(self.every).__getattribute__(self.timeunit)
@@ -61,7 +66,7 @@ def main():
     usage = "example usage: monitor.py --every 30 --timeunit minutes --key APIKEY --file log.njson"
     parser = optparse.OptionParser(usage)
     parser.add_option("-f", "--file", dest="filename", default='pytangle_{}.njson'.format(
-        time.strftime('%Y%m%dT%H.%M.%S')),
+        time.strftime('%Y%m%d%H%M%S')),
                       help="store to FILE", metavar="FILE")
 
     def split_list(option, value):
