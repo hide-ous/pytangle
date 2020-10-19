@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pytangle",
-    version="0.0.2",
+    version="0.0.3",
     author="Mattia Samory",
     author_email="mattia.samory@gmail.com",
     description="A python wrapper for crowdtangle API endpoints",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hide-ous/pytangle/",
-    download_url="https://github.com/hide-ous/pytangle/archive/v0.0.2.tar.gz",
+    download_url="https://github.com/hide-ous/pytangle/archive/v0.0.3.tar.gz",
     keywords=['crowdtangle', 'api', 'wrapper'],
     packages=setuptools.find_packages(),
     install_requires=[
