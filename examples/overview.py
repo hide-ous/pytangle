@@ -1,6 +1,6 @@
 # Copyright (C) 2020 Mattia Samory
 
-from pytangle.api import API, CONFIG_FILE_LOCATIONS
+from pytangle.api import API
 
 if __name__ == '__main__':
 

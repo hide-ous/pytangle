@@ -1,12 +1,11 @@
 # Copyright (C) 2020 Mattia Samory
+
 import json
 import logging
 import time
 from datetime import datetime
-
 import schedule
 import optparse
-
 from pytangle.api import API, CONFIG_FILE_LOCATIONS
 
 logger = logging.getLogger()
@@ -39,7 +38,7 @@ class PyTangleScraper(object):
                                        endDate=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')):
                 out_file.write(json.dumps(post) + '\n')
                 post_date = post['date']
-                if type(post_date) == list:
+                if type(post_date) == list: #unpack items if they are nested in a list
                     post_date = post_date[0]
                 most_recent_timestamp = max(most_recent_timestamp, post_date)
                 counter += 1
@@ -63,7 +62,7 @@ class PyTangleScraper(object):
 
 
 def main():
-    usage = "example usage: monitor.py --every 30 --timeunit minutes --key APIKEY --file log.njson"
+    usage = "example usage: real_time_monitor.py --every 30 --timeunit minutes --key APIKEY --file log.njson"
     parser = optparse.OptionParser(usage)
     parser.add_option("-f", "--file", dest="filename", default='pytangle_{}.njson'.format(
         time.strftime('%Y%m%d%H%M%S')),
