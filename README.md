@@ -192,11 +192,15 @@ in one of the default locations under the name `pytangle_config.json`, and edit 
 ```
 
 ## In this repository
-- `pytangle.py`: main file with examples
-- `pytangle/api.py`: object oriented interface to the api
-- `pytangle/connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
-- `pytangle/endpoints.py`: objects detailing the crowdtangle API endpoints 
-- `pytangle/utils.py`: common utility procedures
+- `pytangle/`: the `pytangle` package
+    - `pytangle/api.py`: object oriented interface to the api
+    - `pytangle/connectivity.py`: uses requests to forward calls to the api endpoints. performs rate limiting and network-related error handling.
+    - `pytangle/endpoints.py`: objects detailing the crowdtangle API endpoints 
+    - `pytangle/utils.py`: common utility procedures
+- `examples/`:
+    - `overview.py`: showcases the various methods of the `pytangle` api wrapper
+    - `real_time_monitor.py`: utility that allows you to scrape posts periodically from command line, 
+    continuously and in real time
 - `pytangle_config_sample.json`: sample configuration file. `pytangle` uses this file to load your API token and to set logging 
 preferences. Copy `pytangle_config_sample.json` into a file named `pytangle_config.json` before 
 customizing it. You most likely want to edit at least your API token. See the later section for further customizations.      
