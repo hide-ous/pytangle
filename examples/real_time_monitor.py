@@ -68,11 +68,12 @@ def main():
         time.strftime('%Y%m%d%H%M%S')),
                       help="store to FILE", metavar="FILE")
 
-    def split_list(option, value):
+    def split_list(option, opt, value, parser, *args, **kwargs):
         setattr(parser.values, option.dest, value.split(','))
 
     parser.add_option("-l", "--lists", dest="lists", default=None, action='callback',
-                      callback=split_list, help="comma-separated ids of the list to scrape, e.g. -l 123,345")
+                      callback=split_list, nargs=1, type='string',
+                      help="comma-separated ids of the list to scrape, e.g. -l 123,345")
 
     parser.add_option("-q", "--quiet",
                       action="store_true", dest="quiet", default=False,
