@@ -4,7 +4,7 @@ import json
 import os
 import sys
 
-from pytangle.connectivity import Paginator
+#from pytangle.connectivity import RateLimitedPaginator
 from pytangle.endpoints import PostsEndpoint, PostEndpoint, SearchEndpoint, LeaderboardEndpoint, ListsEndpoint, \
     LinksEndpoint, \
     AccountsEndpoint
@@ -177,7 +177,10 @@ class API:
             weightView=weightView,
             weightWow=weightWow,
         )
-        yield from Paginator(endpoint=PostsEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=PostsEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from RateLimitedPaginator(PostsEndpoint(args = remove_null_values_from_dict(params)))
+        #return PostsEndpoint.call_rate_limited_paginator(args = remove_null_values_from_dict(params))
+        yield from PostsEndpoint(args = remove_null_values_from_dict(params))
 
     def post(
             self,
@@ -215,7 +218,8 @@ class API:
                       account=account,
                       includeHistory=includeHistory,
                       )
-        yield from Paginator(endpoint=PostEndpoint(endpoint=endpoint, args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=PostEndpoint(endpoint=endpoint, args=remove_null_values_from_dict(params)))
+        yield from PostEndpoint(endpoint = endpoint, args = remove_null_values_from_dict(params))
 
     def search(
             self,
@@ -343,7 +347,8 @@ class API:
             verifiedOnly=verifiedOnly,
             language=language,
         )
-        yield from Paginator(endpoint=SearchEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=SearchEndpoint(args=remove_null_values_from_dict(params)))
+        yield from SearchEndpoint(args = remove_null_values_from_dict(params))
 
     def leaderboard(
             self,
@@ -401,7 +406,8 @@ class API:
             orderBy=orderBy,
             sortBy=sortBy,
         )
-        yield from Paginator(endpoint=LeaderboardEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=LeaderboardEndpoint(args=remove_null_values_from_dict(params)))
+        yield from LeaderboardEndpoint(args = remove_null_values_from_dict(params))
 
     def lists(
             self,
@@ -423,7 +429,8 @@ class API:
         params = dict(
             token=self._token,
         )
-        yield from Paginator(endpoint=ListsEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=ListsEndpoint(args=remove_null_values_from_dict(params)))
+        yield from ListsEndpoint(args = remove_null_values_from_dict(params))
 
     def links(
             self,
@@ -485,7 +492,8 @@ class API:
             includeSummary=includeSummary,
             platforms=platforms,
         )
-        yield from Paginator(endpoint=LinksEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=LinksEndpoint(args=remove_null_values_from_dict(params)))
+        yield from LinksEndpoint(args = remove_null_values_from_dict(params))
 
     def accounts_in_list(
             self,
@@ -524,4 +532,5 @@ class API:
             offset=offset,
             listId=listId,
         )
-        yield from Paginator(endpoint=AccountsEndpoint(args=remove_null_values_from_dict(params)))
+        #yield from Paginator(endpoint=AccountsEndpoint(args=remove_null_values_from_dict(params)))
+        yield from AccountsEndpoint(args = remove_null_values_from_dict(params))
