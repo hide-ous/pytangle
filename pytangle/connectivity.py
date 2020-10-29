@@ -9,29 +9,38 @@ from urllib.parse import urlparse, parse_qs
 from sys import exit
 from dateutil.parser import parse as date_parse
 import requests
-from ratelimit import limits, sleep_and_retry, RateLimitException
-
+from ratelimit import sleep_and_retry, RateLimitException
+from pytangle.utils import read_config, read_max_retries, read_wait_time
+import itertools
 import logging
+
+import sys
+from math import floor
 
 logger = logging.getLogger()
 
-ONE_SECOND = 1
-ONE_MINUTE = 60
-TEN_SECONDS = 10
-THIRTY_SECONDS = 30
+# ONE_SECOND = 1
+# ONE_MINUTE = 60
+# TEN_SECONDS = 10
+# THIRTY_SECONDS = 30
+MAX_RETRIES = read_max_retries(read_config()) if read_max_retries(read_config()) else 5 
 
 
+
+# the following use of ratelimit should be removed
+"""
 @sleep_and_retry
 @limits(calls=1, period=TEN_SECONDS)
 def make_request_1_every_10s(uri, params, max_retries=5):
-    return make_request(uri, params, max_retries=5)
+    return make_request(uri, params, max_retries=MAX_RETRIES)
 
 
 @sleep_and_retry
 @limits(calls=1, period=THIRTY_SECONDS)
 def make_request_1_every_30s(uri, params, max_retries=5):
-    return make_request(uri, params, max_retries=5)
+    return make_request(uri, params, max_retries=MAX_RETRIES)
 
+"""
 
 # TODO: add config for max_retries
 def make_request(uri, params, max_retries=5):
@@ -126,15 +135,31 @@ def make_request(uri, params, max_retries=5):
 
 class Paginator:
 
-    def __init__(self, endpoint, max_cached_ids=100):
-        self.endpoint = endpoint
+    def __init__(self,
+                 #endpoint,
+                 param_dict,
+                 response_item_id_getter,
+                 #request_fun,
+                 response_field,
+                 max_query_offset,
+                 endpoint_url,
+                 max_cached_ids=100):
+
+        #self.endpoint = endpoint
         self.cached_ids = deque(maxlen=max_cached_ids)
 
-        self.request_fun = endpoint.request_function()
-        self.response_field = endpoint.get_response_field_name()
-        self.param_dict = deepcopy(endpoint.args)
-        self.max_offset_threshold = endpoint.max_query_offset()
-        self.endpoint_url = endpoint.get_endpoint_url()
+        # self.request_fun = endpoint.request_function()
+        # self.response_field = endpoint.get_response_field_name()
+        # self.param_dict = deepcopy(endpoint.args)
+        # self.max_offset_threshold = endpoint.max_query_offset()
+        # self.endpoint_url = endpoint.get_endpoint_url()
+
+        self.response_item_id_getter = response_item_id_getter
+        self.response_field = response_field
+        self.param_dict = deepcopy(param_dict)
+        self.max_offset_threshold = max_query_offset
+        self.endpoint_url = endpoint_url
+
 
         self.returned_count = 0
 
@@ -176,7 +201,7 @@ class Paginator:
         for result in response['result'][self.response_field]:
             # check for duplicates
             try:
-                result_id = self.endpoint.get_response_item_id(result)
+                result_id = self.response_item_id_getter(result) # ??
                 if result_id not in self.cached_ids:
                     self.current_results.append(result)
                     new_ids_to_cache.append(result_id)
@@ -234,3 +259,67 @@ class Paginator:
 
     def __iter__(self):
         return self
+
+# create rate limited paginator which inherits paginator and ratelimits it depending on the endpoint
+class RateLimitedPaginator(Paginator):
+    def __init__(self, 
+                 param_dict,
+                 response_field,
+                 max_query_offset,
+                 endpoint_url,
+                 max_cached_ids=100,
+                 num_calls = 1,
+                 time_unit = 10,
+                 raise_on_limit = True):
+        super().__init__(param_dict, response_field, max_query_offset, endpoint_url, max_cached_ids)
+                        # , request_fun, response_field, 
+                        #  param_dict, max_offset_threshold, endpoint_url,
+                        #  returned_count, next_page, previous_page, response,
+                        #  current_results, has_next_page)
+                        
+        self.request_fun = make_request  # have make request here instead of importing in endpoints.py        
+        self.time_unit = time_unit / num_calls
+        self.num_calls = 1 #num_calls
+        self.clock = time.time()
+        self.last_reset = time.time()
+        self.clamped_calls = max(1, min(sys.maxsize, floor(self.num_calls)))
+        self.num_calls_so_far = 0
+        self.raise_on_limit = raise_on_limit
+        self.total = 0
+
+    def __period_remaining(self):
+        '''
+        Return the period remaining for the current rate limit window.
+        :return: The remaing period.
+        :rtype: float
+        '''
+        elapsed = time.time() - self.last_reset
+        return self.time_unit - elapsed
+
+   
+    def __next__(self):
+        
+
+        #print(period_remaining, self.clamped_calls)
+        if self.__period_remaining() <= 0:
+            #print("resetting")
+            self.num_calls_so_far = 0
+            self.last_reset = time.time()
+
+
+        # Increase the number of attempts to call the function.
+        self.num_calls_so_far += 1
+        self.total += 1
+
+        # If the number of attempts to call the function exceeds the
+        # maximum then raise an exception.
+        if self.num_calls_so_far / 100 >= self.clamped_calls and self.__period_remaining() > 0:
+            time.sleep(self.__period_remaining())   # sleep for time remaining        
+
+
+        #print(self.num_calls / 100, self.total, self.__period_remaining(), self.clamped_calls)
+        return super().__next__()
+
+        
+
+
