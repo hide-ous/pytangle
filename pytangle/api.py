@@ -347,6 +347,13 @@ class API:
             verifiedOnly=verifiedOnly,
             language=language,
         )
+        if 'and_' in params.keys():
+            params['and'] = params['and_']
+            del params['and_']
+
+        if 'not_' in params.keys():
+            params['not'] = params['not_']
+            del params['not_']            
         #yield from Paginator(endpoint=SearchEndpoint(args=remove_null_values_from_dict(params)))
         yield from SearchEndpoint(args = remove_null_values_from_dict(params))
 

@@ -12,6 +12,13 @@ for a_list in api.lists():
     print(a_list)
 
 
+list_ids = [34081] # ids of the lists of interest
+
+print("\n\n\n\nget the 5 top overperforming posts")
+for a_post in api.posts(listIds = list_ids, sortBy='interaction_rate',):
+    print(a_post)
+
+
 
 print("\n\n\n\nget the 5 top overperforming posts")
 for a_post in api.posts(count=5):
@@ -37,12 +44,6 @@ print("\n\n\n\nget information on an account")
 list_id = 34081 # the id of one of your lists
 for an_account in api.accounts_in_list(count=5, listId=list_id):
     print(an_account)    
-
-list_ids = [34081] # ids of the lists of interest
-
-print("\n\n\n\nget the 5 top overperforming posts")
-for a_post in api.posts(listIds = list_ids, sortBy='interaction_rate',):
-    print(a_post)
 
 
 # print("\n\n\n\nget the 5 top overperforming posts by list")
@@ -78,6 +79,23 @@ for n, a_post in enumerate(api.posts(listIds=list_ids,
 print(len(posts)        )
 print(posts[0])
 
+
+"""
+# The search endpoint needs to be activated
+search_term = "python"
+for n, a_post in enumerate(api.search(#inListIds=list_ids,
+                                             and_="charcoal",
+                                             count=-1,
+                                             batchSize=100,
+                                             sortBy='date',
+                                             startDate='2020-01-01',
+                                             endDate='2020-06-30',
+                                             searchTerm=search_term,
+                                             )):
+            # do something with the post
+    if not n % 1000:
+        print(n)
+"""
 
 print("\n\n\n\n\n\n")
 print('It took', time.time()-start, 'seconds.')
